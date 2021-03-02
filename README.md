@@ -33,12 +33,12 @@ pip install EmoTFIDF
 ```python
 from emotfidf import EmoTFIDF
 
-comment = "I had a GREAT week, thanks to YOU! If you need anything, please reach out."
+comment = "I had a GREAT week, thanks to YOU! I am very happy today."
 
 emTFIDF  = EmoTFIDF()
 
 emTFIDF.set_text(comment)
-emTFIDF.get_emotions()
+print(emTFIDF.em_frequencies)
 ```
 
 
@@ -52,7 +52,7 @@ emTFIDF  = EmoTFIDF()
 def getEmotionsTFIDF(s,emTFIDF):
   emTFIDF.set_text(s)
   emTFIDF.get_emotfidf()
-  return emTFIDF.em_frequencies
+  return emTFIDF.em_tfidf
 
 
 emTFIDF.computeTFIDF(df['text'])

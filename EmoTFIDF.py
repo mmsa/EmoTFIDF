@@ -51,7 +51,7 @@ def get_emotions(self):
 class EmoTFIDF:
     """Lexicon source is (C) 2016 National Research Council Canada (NRC) and library is for research purposes only.  Source: http://sentiment.nrc.ca/lexicons-for-research/"""
 
-    with open('emotions_lex.json') as jsonfile:
+    with open('https://raw.githubusercontent.com/mmsa/EmoTFIDF/main/emotions_lex.json') as jsonfile:
         lexicon = json.load(jsonfile)
 
     def set_text(self, text):

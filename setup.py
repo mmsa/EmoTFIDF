@@ -36,6 +36,7 @@ setuptools.setup(
     include_package_data=True,
     py_modules=["emotfidf"],
     setup_requires=['nltk'],
+    package_data={'project': ['emotions_lex.json']},
     classifiers=[
         "Programming Language :: Python :: 3.6",
         "License :: OSI Approved :: MIT License",

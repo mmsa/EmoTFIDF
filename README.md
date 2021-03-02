@@ -6,14 +6,14 @@ EmoTFIDF is an emotion detection library (Lexicon approach) based in the Nationa
 1- Lexicon based emotions which counting the frequency of the emotion based on the lexicon
 2- Integrating TFIDF to add a context to the emotions.
 
-<h1>Installation</h1>
+#Installation
 
 
 ```python
 pip install EmoTFIDF
 ```
 
-<h2>List of emotions:</h2>
+#List of emotions
 
 -fear
 -anger
@@ -27,9 +27,9 @@ pip install EmoTFIDF
 -joy
 
 
-<h2>Example of usage:</h2?
+#Example of usage
+##Get emotions from a sentence
 
-<h3>Get emotions from a sentence</h3>
 ```python
 from emotfidf import EmoTFIDF
 
@@ -42,14 +42,11 @@ emTFIDF.get_emotions()
 ```
 
 
-<h4>Return words list.</4>
-
-emTFIDF.words
-
-
-<h3>Get emotions factorising TFIDF, you will need to add a context<3>
+##Get emotions factorising TFIDF, you will need to add a context
 
 Below is an example in pandas assuming you have a list of tweets/text and you would want to get emotions
+
+
 ```python
 emTFIDF  = EmoTFIDF()
 def getEmotionsTFIDF(s,emTFIDF):

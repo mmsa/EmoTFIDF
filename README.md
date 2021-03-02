@@ -8,10 +8,10 @@ EmoTFIDF is an emotion detection library (Lexicon approach) based in the Nationa
 
 <h1>Installation</h1>
 
+
 ```python
 pip install EmoTFIDF
 ```
-
 
 <h2>List of emotions:</h2>
 
@@ -41,13 +41,11 @@ emTFIDF.set_text(comment)
 emTFIDF.get_emotions()
 ```
 
-returns lists of emotions
 
-#Return words list.
+<h4>Return words list.</4>
 
-```python
 emTFIDF.words
-```
+
 
 <h3>Get emotions factorising TFIDF, you will need to add a context<3>
 

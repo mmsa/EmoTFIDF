@@ -22,7 +22,7 @@ class Install(_install):
 
 setuptools.setup(
     name="EmoTFIDF",
-    version="1.0.0",
+    version="1.0.6",
     author="mmsa12",
     author_email="mmsa12@gmail.com",
     description="A library to extract emotions using two methods, 1- Using lexicon based, counting frequency of emotion"
@@ -30,7 +30,7 @@ setuptools.setup(
                 "Note that lexicon license is for research purposes only.",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/mmsa12/emotfidf",
+    url="https://github.com/mmsa/emotfidf",
     packages=setuptools.find_packages(),
     install_requires=['nltk'],
     include_package_data=True,

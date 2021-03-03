@@ -5,9 +5,10 @@
 import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 from collections import Counter
-import json
 import string, nltk
 from nltk.corpus import stopwords
+import urllib.request, json
+
 nltk.download('wordnet')
 nltk.download('punkt')
 nltk.download('stopwords')
@@ -51,15 +52,14 @@ def get_emotions(self):
 class EmoTFIDF:
     """Lexicon source is (C) 2016 National Research Council Canada (NRC) and library is for research purposes only.  Source: http://sentiment.nrc.ca/lexicons-for-research/"""
 
-    with open('https://raw.githubusercontent.com/mmsa/EmoTFIDF/main/emotions_lex.json') as jsonfile:
-        lexicon = json.load(jsonfile)
+    with urllib.request.urlopen("https://raw.githubusercontent.com/mmsa/EmoTFIDF/main/emotions_lex.json") as url:
+        lexicon = json.loads(url.read().decode())
 
     def set_text(self, text):
         self.text = process_message(text)
         self.words = list(nltk.word_tokenize(self.text))
         self.sentences = list(nltk.sent_tokenize(self.text))
         get_emotions(self)
-        top_emotions(self)
 
     def computeTFIDF(self, docs):
         vectorizer = TfidfVectorizer(max_features=200, stop_words=stopwords.words('english'),
@@ -94,5 +94,5 @@ class EmoTFIDF:
                     em_frequencies[a] = new_fre
         sum_values = sum(em_frequencies.values())
         for key in em_frequencies.keys():
-            em_percent.update({key: float(em_frequencies[key]) / float(sum_values)})
+            em_percent.update({key: round(float(em_frequencies[key]) / float(sum_values), 3)})
         self.em_tfidf = em_percent

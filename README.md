@@ -60,3 +60,14 @@ df['emotions'] = new_df.apply(lambda x: getEmotionsTFIDF(x['text'], emTFIDF), ax
 df2 = df['emotions'].apply(pd.Series)
 final_df = pd.concat([df,df2],axis=1)
 ```
+
+##Update 1.0.7
+
+Thanks to [artofchores](https://www.reddit.com/user/artofchores/), from Reddit for his feedback.
+
+
+Added a set_lexicon_path option if you would like to use your own lexicon
+Remember to keep the same structure as the original emotions lexicon which located [here](https://raw.githubusercontent.com/mmsa/EmoTFIDF/main/emotions_lex.json)
+```
+emTFIDF.set_lexicon_path("other_lexicon.json")
+```

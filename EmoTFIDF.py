@@ -3,12 +3,12 @@
 @author: mmsa12
 """
 import pandas as pd
+import sklearn
 from sklearn.feature_extraction.text import TfidfVectorizer
 from collections import Counter
 import string, nltk
 from nltk.corpus import stopwords
 import urllib.request, json
-
 nltk.download('wordnet')
 nltk.download('punkt')
 nltk.download('stopwords')
@@ -61,20 +61,24 @@ class EmoTFIDF:
         self.sentences = list(nltk.sent_tokenize(self.text))
         get_emotions(self)
 
-    def set_lexicon_path(self,path):
+    def set_lexicon_path(self, path):
         self.path = path
-        if path!=' ' and path!=0:
+        if path != ' ' and path != 0:
             with open(path) as jsonfile:
                 self.lexicon = json.load(jsonfile)
         else:
-            with urllib.request.urlopen("https://raw.githubusercontent.com/mmsa/EmoTFIDF/main/emotions_lex.json") as url:
+            with urllib.request.urlopen(
+                    "https://raw.githubusercontent.com/mmsa/EmoTFIDF/main/emotions_lex.json") as url:
                 self.lexicon = json.loads(url.read().decode())
 
     def computeTFIDF(self, docs):
         vectorizer = TfidfVectorizer(max_features=200, stop_words=stopwords.words('english'),
                                      token_pattern=r'(?u)\b[A-Za-z]+\b')
         vectors = vectorizer.fit_transform(docs)
-        feature_names = vectorizer.get_feature_names()
+        if sklearn.__version__ <= 0.24:
+            feature_names = vectorizer.get_feature_names()
+        elif sklearn.__version__ >= 1.0:
+            feature_names = vectorizer.get_feature_names_out()
         dense = vectors.todense()
         denselist = dense.tolist()
         df = pd.DataFrame(denselist, columns=feature_names)
@@ -105,4 +109,3 @@ class EmoTFIDF:
         for key in em_frequencies.keys():
             em_percent.update({key: round(float(em_frequencies[key]) / float(sum_values), 3)})
         self.em_tfidf = em_percent
-

@@ -9,6 +9,7 @@ from collections import Counter
 import string, nltk
 from nltk.corpus import stopwords
 import urllib.request, json
+
 nltk.download('wordnet')
 nltk.download('punkt')
 nltk.download('stopwords')
@@ -75,10 +76,7 @@ class EmoTFIDF:
         vectorizer = TfidfVectorizer(max_features=200, stop_words=stopwords.words('english'),
                                      token_pattern=r'(?u)\b[A-Za-z]+\b')
         vectors = vectorizer.fit_transform(docs)
-        if sklearn.__version__ <= 0.24:
-            feature_names = vectorizer.get_feature_names()
-        elif sklearn.__version__ >= 1.0:
-            feature_names = vectorizer.get_feature_names_out()
+        feature_names = vectorizer.get_feature_names_out()
         dense = vectors.todense()
         denselist = dense.tolist()
         df = pd.DataFrame(denselist, columns=feature_names)

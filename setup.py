@@ -22,7 +22,7 @@ class Install(_install):
 
 setuptools.setup(
     name="EmoTFIDF",
-    version="1.0.6",
+    version="1.0.12",
     author="mmsa12",
     author_email="mmsa12@gmail.com",
     description="A library to extract emotions using two methods, 1- Using lexicon based, counting frequency of emotion"
@@ -43,4 +43,5 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
     python_requires='>=2.7',
+    sklearn='>=1.0.x'
 )

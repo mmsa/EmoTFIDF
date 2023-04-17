@@ -3,7 +3,6 @@
 @author: mmsa12
 """
 import pandas as pd
-import sklearn
 from sklearn.feature_extraction.text import TfidfVectorizer
 from collections import Counter
 import string, nltk
@@ -35,13 +34,18 @@ def get_emotions(self):
     lexicon_keys = self.lexicon.keys()
     for word in self.words:
         if word in lexicon_keys:
-            em_list.extend(self.lexicon[word])
-            em_dict.update({word: self.lexicon[word]})
+            emotions_found = self.lexicon[word]
+            if emotions_found is not None:
+                if 'negative' in emotions_found:
+                    emotions_found.remove('negative')
+                elif 'positive' in emotions_found:
+                    emotions_found.remove('positive')
+                em_list.extend(emotions_found)
+                em_dict.update({word: self.lexicon[word]})
     for word in em_list:
         em_frequencies[word] += 1
     sum_values = sum(em_frequencies.values())
-    em_percent = {'fear': 0.0, 'anger': 0.0, 'anticipation': 0.0, 'trust': 0.0, 'surprise': 0.0, 'positive': 0.0,
-                  'negative': 0.0, 'sadness': 0.0, 'disgust': 0.0, 'joy': 0.0}
+    em_percent = {'fear': 0.0, 'anger': 0.0, 'anticipation': 0.0, 'trust': 0.0, 'surprise': 0.0,'sadness': 0.0, 'disgust': 0.0, 'joy': 0.0}
     for key in em_frequencies.keys():
         em_percent.update({key: float(em_frequencies[key]) / float(sum_values)})
     self.em_list = em_list
@@ -73,7 +77,8 @@ class EmoTFIDF:
                 self.lexicon = json.loads(url.read().decode())
 
     def computeTFIDF(self, docs):
-        vectorizer = TfidfVectorizer(max_features=200, stop_words=stopwords.words('english'),
+        stop_words = stopwords.words('english')
+        vectorizer = TfidfVectorizer(max_features=200, stop_words=stop_words,
                                      token_pattern=r'(?u)\b[A-Za-z]+\b')
         vectors = vectorizer.fit_transform(docs)
         feature_names = vectorizer.get_feature_names_out()
@@ -92,8 +97,7 @@ class EmoTFIDF:
 
     def get_emotfidf(self):
         self.get_ifidf_for_words()
-        em_percent = {'fear': 0.0, 'anger': 0.0, 'anticipation': 0.0, 'trust': 0.0, 'surprise': 0.0, 'positive': 0.0,
-                      'negative': 0.0, 'sadness': 0.0, 'disgust': 0.0, 'joy': 0.0}
+        em_percent = {'fear': 0.0, 'anger': 0.0, 'anticipation': 0.0, 'trust': 0.0, 'surprise': 0.0,'sadness': 0.0, 'disgust': 0.0, 'joy': 0.0}
         em_frequencies = Counter()
         for word in self.em_list:
             em_frequencies[word] += 1
@@ -106,4 +110,5 @@ class EmoTFIDF:
         sum_values = sum(em_frequencies.values())
         for key in em_frequencies.keys():
             em_percent.update({key: round(float(em_frequencies[key]) / float(sum_values), 3)})
+        self.em_tfidf = em_percent
         self.em_tfidf = em_percent

@@ -1070,7 +1070,7 @@
         "joy"
     ],
     "age": [
-        "neutrality"
+        ""
     ],
     "aged": [
         "sadness"
@@ -2359,7 +2359,7 @@
         "joy"
     ],
     "approximate": [
-        "neutrality"
+        ""
     ],
     "approximately": [
         "anticipation",
@@ -2544,7 +2544,7 @@
         "disgust"
     ],
     "armature": [
-        "neutrality"
+        ""
     ],
     "armed": [
         "anger",
@@ -3528,7 +3528,7 @@
         "disgust"
     ],
     "baffle": [
-        "perplexity"
+        "anticipation"
     ],
     "bag": [
         "anticipation"
@@ -3808,7 +3808,7 @@
         "disgust"
     ],
     "barrel": [
-        "neutrality"
+        ""
     ],
     "barren": [
         "disgust",
@@ -4551,7 +4551,7 @@
         "anticipation"
     ],
     "bit": [
-        "neutrality"
+        ""
     ],
     "bitch": [
         "anger",
@@ -5130,7 +5130,7 @@
     ],
     "booty": [
         "disgust",
-        "excitement"
+        "joy"
     ],
     "booze": [
         "disgust"
@@ -5158,7 +5158,7 @@
         "disgust"
     ],
     "borough": [
-        "neutrality"
+        ""
     ],
     "borrow": [
         "trust"
@@ -5634,7 +5634,7 @@
     ],
     "brush": [
         "joy",
-        "calmness"
+        "trust"
     ],
     "brutal": [
         "anger",
@@ -5741,7 +5741,7 @@
     ],
     "bulkhead": [
         "trust",
-        "calmness"
+        "trust"
     ],
     "bulky": [
         "disgust"
@@ -5980,7 +5980,7 @@
         "joy"
     ],
     "buy": [
-        "neutrality"
+        ""
     ],
     "buyer": [
         "trust"
@@ -6060,7 +6060,7 @@
         "anticipation"
     ],
     "caddy": [
-        "neutrality"
+        ""
     ],
     "cadence": [
         "joy"
@@ -6152,7 +6152,7 @@
         "joy"
     ],
     "calmness": [
-        "calmness"
+        "trust"
     ],
     "caloric": [
         "trust"
@@ -7761,7 +7761,7 @@
         "fear"
     ],
     "clef": [
-        "neutrality"
+        ""
     ],
     "cleft": [
         "fear"
@@ -7826,7 +7826,7 @@
         "disgust"
     ],
     "clipper": [
-        "excitement"
+        "joy"
     ],
     "clipping": [
         "anger"
@@ -8333,7 +8333,7 @@
         "anticipation"
     ],
     "comma": [
-        "neutrality"
+        ""
     ],
     "command": [
         "anger"
@@ -8733,7 +8733,7 @@
         "anger"
     ],
     "compressible": [
-        "neutrality"
+        ""
     ],
     "compression": [
         "fear"
@@ -9721,7 +9721,7 @@
         "joy"
     ],
     "convoluted": [
-        "perplexity"
+        "anticipation"
     ],
     "convolution": [
         "anticipation"
@@ -10378,7 +10378,7 @@
         "trust"
     ],
     "creek": [
-        "neutrality"
+        ""
     ],
     "creep": [
         "disgust"
@@ -10930,7 +10930,7 @@
         "disgust"
     ],
     "cwt": [
-        "perplexity"
+        "anticipation"
     ],
     "cyanide": [
         "fear",
@@ -12009,7 +12009,7 @@
         "trust"
     ],
     "depot": [
-        "neutrality"
+        ""
     ],
     "depraved": [
         "anger",
@@ -13034,7 +13034,7 @@
         "trust"
     ],
     "disclaimer": [
-        "neutrality"
+        ""
     ],
     "disclose": [
         "trust"
@@ -13465,7 +13465,6 @@
         "sadness"
     ],
     "display": [
-        "excitement",
         "joy"
     ],
     "displeased": [
@@ -14448,7 +14447,7 @@
         "trust"
     ],
     "duplicate": [
-        "neutrality"
+        ""
     ],
     "duplication": [
         "trust"
@@ -14662,8 +14661,7 @@
         "anticipation"
     ],
     "ecclesiastical": [
-        "trust",
-        "calmness"
+        "trust"
     ],
     "echo": [
         "anticipation",
@@ -14938,7 +14936,7 @@
         "trust"
     ],
     "elevator": [
-        "neutrality"
+        ""
     ],
     "eleven": [
         "joy"
@@ -15311,7 +15309,7 @@
         "trust"
     ],
     "end": [
-        "neutrality"
+        ""
     ],
     "endanger": [
         "anticipation",
@@ -15750,7 +15748,7 @@
         "anticipation"
     ],
     "equator": [
-        "neutrality"
+        ""
     ],
     "equatorial": [
         "trust"
@@ -16064,7 +16062,7 @@
         "joy"
     ],
     "evaporation": [
-        "neutrality"
+        ""
     ],
     "evasion": [
         "fear",
@@ -16295,8 +16293,6 @@
     "excitement": [
         "anticipation",
         "joy",
-        "joy",
-        "anticipation"
     ],
     "exciting": [
         "anticipation",
@@ -16675,7 +16671,7 @@
         "trust"
     ],
     "expression": [
-        "neutrality"
+        ""
     ],
     "expressive": [
         "joy"
@@ -16785,7 +16781,7 @@
         "fear"
     ],
     "extremely": [
-        "excitement"
+        "joy"
     ],
     "extremity": [
         "disgust"
@@ -17553,7 +17549,7 @@
         "joy"
     ],
     "filamentous": [
-        "neutrality"
+        ""
     ],
     "file": [
         "trust"
@@ -17698,8 +17694,7 @@
         "trust"
     ],
     "firmament": [
-        "trust",
-        "calmness"
+        "trust"
     ],
     "firmly": [
         "trust"
@@ -18110,7 +18105,7 @@
         "joy"
     ],
     "foam": [
-        "neutrality"
+        ""
     ],
     "foaming": [
         "disgust"
@@ -18956,7 +18951,7 @@
         "joy"
     ],
     "function": [
-        "neutrality"
+        ""
     ],
     "functional": [
         "trust"
@@ -19009,8 +19004,7 @@
         "joy"
     ],
     "furniture": [
-        "trust",
-        "calmness"
+        "trust"
     ],
     "furor": [
         "anger",
@@ -19199,8 +19193,7 @@
         "trust"
     ],
     "gardening": [
-        "joy",
-        "calmness"
+        "joy"
     ],
     "garish": [
         "disgust",
@@ -19621,7 +19614,7 @@
         "joy"
     ],
     "glen": [
-        "neutrality"
+        ""
     ],
     "glib": [
         "disgust"
@@ -19948,7 +19941,7 @@
     ],
     "gradually": [
         "anticipation",
-        "calmness"
+        "trust"
     ],
     "graduation": [
         "anticipation",
@@ -21259,7 +21252,7 @@
         "trust"
     ],
     "hemi": [
-        "neutrality"
+        ""
     ],
     "hemisphere": [
         "joy"
@@ -23543,7 +23536,7 @@
     ],
     "infancy": [
         "joy",
-        "calmness"
+        "trust"
     ],
     "infant": [
         "anticipation",
@@ -23778,7 +23771,7 @@
         "anticipation"
     ],
     "inhabit": [
-        "neutrality"
+        ""
     ],
     "inhabitant": [
         "trust"
@@ -24776,7 +24769,7 @@
     ],
     "inwards": [
         "trust",
-        "calmness"
+        "trust"
     ],
     "iota": [
         "anticipation"
@@ -24851,7 +24844,7 @@
         "sadness"
     ],
     "irrepressible": [
-        "excitement"
+        "joy"
     ],
     "irresistible": [
         "joy"
@@ -25176,7 +25169,7 @@
     ],
     "journal": [
         "trust",
-        "calmness"
+        "trust"
     ],
     "journalism": [
         "trust"
@@ -25489,7 +25482,7 @@
     ],
     "kirk": [
         "trust",
-        "calmness"
+        "trust"
     ],
     "kiss": [
         "anticipation",
@@ -25718,7 +25711,7 @@
         "fear"
     ],
     "lancer": [
-        "neutrality"
+        ""
     ],
     "land": [
         "joy"
@@ -26065,8 +26058,8 @@
         "anticipation"
     ],
     "lecture": [
-        "neutrality",
-        "neutrality"
+        "",
+        ""
     ],
     "lecturer": [
         "joy"
@@ -26167,7 +26160,7 @@
         "disgust"
     ],
     "legume": [
-        "neutrality"
+        ""
     ],
     "leisure": [
         "anticipation",
@@ -26965,7 +26958,7 @@
         "joy"
     ],
     "lotion": [
-        "neutrality"
+        ""
     ],
     "lots": [
         "joy"
@@ -27076,7 +27069,7 @@
         "disgust"
     ],
     "lug": [
-        "neutrality"
+        ""
     ],
     "luggage": [
         "anticipation"
@@ -27687,7 +27680,7 @@
         "trust"
     ],
     "marl": [
-        "neutrality"
+        ""
     ],
     "marmalade": [
         "joy"
@@ -28433,7 +28426,7 @@
         "joy"
     ],
     "middle": [
-        "neutrality"
+        ""
     ],
     "middleman": [
         "trust"
@@ -28859,7 +28852,7 @@
         "anticipation"
     ],
     "mixed": [
-        "perplexity",
+        "anticipation",
         "fear"
     ],
     "mixture": [
@@ -29340,7 +29333,7 @@
         "disgust"
     ],
     "mound": [
-        "neutrality"
+        ""
     ],
     "mount": [
         "fear"
@@ -29790,7 +29783,6 @@
     ],
     "natal": [
         "joy",
-        "excitement"
     ],
     "nation": [
         "trust"
@@ -30074,7 +30066,7 @@
         "anticipation",
         "trust"
     ],
-    "neutrality": [
+    "": [
         "trust"
     ],
     "neutralize": [
@@ -30429,7 +30421,7 @@
     ],
     "nugget": [
         "disgust",
-        "excitement"
+        "joy"
     ],
     "nuisance": [
         "anger",
@@ -30762,7 +30754,7 @@
         "anticipation"
     ],
     "occasionally": [
-        "neutrality"
+        ""
     ],
     "occlusion": [
         "anticipation"
@@ -30995,7 +30987,7 @@
     ],
     "omnipotent": [
         "trust",
-        "calmness"
+        "trust"
     ],
     "omnipresent": [
         "trust"
@@ -31578,7 +31570,7 @@
         "anticipation"
     ],
     "oval": [
-        "neutrality"
+        ""
     ],
     "ovary": [
         "trust"
@@ -31877,7 +31869,7 @@
         "disgust"
     ],
     "painstaking": [
-        "neutrality"
+        ""
     ],
     "paint": [
         "joy"
@@ -31892,7 +31884,7 @@
         "joy"
     ],
     "pair": [
-        "neutrality"
+        ""
     ],
     "pajamas": [
         "joy"
@@ -32132,7 +32124,7 @@
         "anticipation"
     ],
     "parchment": [
-        "neutrality"
+        ""
     ],
     "pardon": [
         "joy"
@@ -32460,7 +32452,7 @@
     ],
     "pause": [
         "anticipation",
-        "calmness"
+        "trust"
     ],
     "pave": [
         "trust"
@@ -32937,7 +32929,7 @@
         "anticipation",
         "fear"
     ],
-    "perplexity": [
+    "anticipation": [
         "disgust",
         "sadness"
     ],
@@ -33585,7 +33577,7 @@
         "trust"
     ],
     "plating": [
-        "neutrality"
+        ""
     ],
     "platoon": [
         "trust"
@@ -35830,7 +35822,7 @@
         "disgust"
     ],
     "pussycat": [
-        "neutrality"
+        ""
     ],
     "put": [
         "trust"
@@ -36036,7 +36028,7 @@
         "anticipation"
     ],
     "quid": [
-        "neutrality"
+        ""
     ],
     "quiescent": [
         "joy"
@@ -36053,7 +36045,7 @@
     ],
     "quilt": [
         "trust",
-        "calmness",
+        "trust",
         "joy"
     ],
     "quinine": [
@@ -36856,7 +36848,7 @@
         "anticipation"
     ],
     "recursion": [
-        "perplexity"
+        "anticipation"
     ],
     "recursive": [
         "anticipation"
@@ -37861,8 +37853,8 @@
         "trust"
     ],
     "resolved": [
-        "determination",
-        "determination"
+        "trust",
+        "anger"
     ],
     "resonance": [
         "joy"
@@ -37878,7 +37870,7 @@
     ],
     "resort": [
         "anticipation",
-        "excitement"
+        "joy"
     ],
     "resounding": [
         "joy"
@@ -38084,7 +38076,7 @@
     ],
     "retired": [
         "sadness",
-        "calmness"
+        "trust"
     ],
     "retirement": [
         "anticipation",
@@ -39862,7 +39854,7 @@
         "trust"
     ],
     "sedate": [
-        "neutrality"
+        ""
     ],
     "sedative": [
         "trust"
@@ -39878,7 +39870,7 @@
         "disgust"
     ],
     "sedimentary": [
-        "neutrality"
+        ""
     ],
     "sedition": [
         "anger",
@@ -39911,7 +39903,7 @@
         "anticipation"
     ],
     "seemingly": [
-        "perplexity"
+        "anticipation"
     ],
     "seer": [
         "trust"
@@ -40442,7 +40434,7 @@
         "anticipation"
     ],
     "shaving": [
-        "neutrality"
+        ""
     ],
     "shawl": [
         "joy"
@@ -41316,7 +41308,7 @@
         "trust"
     ],
     "sleeping": [
-        "calmness"
+        "trust"
     ],
     "sleeplessness": [
         "sadness"
@@ -41798,7 +41790,6 @@
     ],
     "soiled": [
         "disgust",
-        "disgust"
     ],
     "sojourn": [
         "anticipation"
@@ -41902,7 +41893,6 @@
     ],
     "sonnet": [
         "joy",
-        "joy",
         "sadness"
     ],
     "sonorous": [
@@ -42001,7 +41991,7 @@
     ],
     "sound": [],
     "sounding": [
-        "precision"
+        "trust"
     ],
     "soundness": [
         "anticipation",
@@ -42052,7 +42042,6 @@
         "anticipation"
     ],
     "spaniel": [
-        "joy",
         "joy",
         "trust"
     ],
@@ -42566,7 +42555,7 @@
         "disgust"
     ],
     "squirrel": [
-        "neutrality"
+        ""
     ],
     "squirt": [
         "disgust"
@@ -43117,7 +43106,7 @@
         "disgust"
     ],
     "stopper": [
-        "neutrality"
+        ""
     ],
     "stopping": [
         "anticipation"
@@ -44301,7 +44290,7 @@
     ],
     "sweeten": [
         "joy",
-        "calmness"
+        "trust"
     ],
     "sweetened": [
         "joy"
@@ -44370,8 +44359,7 @@
         "joy"
     ],
     "swinging": [
-        "joy",
-        "excitement"
+        "joy"
     ],
     "swish": [
         "anticipation"
@@ -44650,7 +44638,7 @@
         "anticipation"
     ],
     "tallow": [
-        "neutrality"
+        ""
     ],
     "tally": [
         "trust"
@@ -45790,7 +45778,7 @@
         "sadness"
     ],
     "tomcat": [
-        "neutrality"
+        ""
     ],
     "tome": [
         "anticipation"
@@ -46375,7 +46363,7 @@
         "trust"
     ],
     "treatise": [
-        "neutrality"
+        ""
     ],
     "treatment": [
         "trust",
@@ -46976,7 +46964,7 @@
         "anticipation"
     ],
     "umbilical": [
-        "neutrality"
+        ""
     ],
     "umbra": [
         "fear"
@@ -47176,7 +47164,7 @@
         "anger"
     ],
     "unconcerned": [
-        "neutrality"
+        ""
     ],
     "unconfirmed": [
         "fear"
@@ -47662,7 +47650,7 @@
     ],
     "universal": [
         "trust",
-        "calmness"
+        "trust"
     ],
     "universality": [
         "trust"
@@ -48725,7 +48713,7 @@
         "joy"
     ],
     "vesicle": [
-        "neutrality"
+        ""
     ],
     "vesicular": [
         "disgust"
@@ -49052,7 +49040,7 @@
     ],
     "visualize": [
         "anticipation",
-        "excitement"
+        "joy"
     ],
     "vital": [
         "joy"
@@ -49731,7 +49719,7 @@
     ],
     "whet": [
         "anticipation",
-        "excitement"
+        "joy"
     ],
     "whiff": [
         "anticipation"
@@ -49831,7 +49819,7 @@
     ],
     "whopping": [
         "anticipation",
-        "excitement"
+        "joy"
     ],
     "whore": [
         "disgust",
@@ -49849,7 +49837,7 @@
         "disgust"
     ],
     "wicker": [
-        "neutrality"
+        ""
     ],
     "wicket": [
         "joy"
@@ -50159,7 +50147,7 @@
         "disgust"
     ],
     "wordy": [
-        "neutrality"
+        ""
     ],
     "work": [
         "joy"
@@ -50264,7 +50252,7 @@
         "sadness"
     ],
     "wrangler": [
-        "neutrality"
+        ""
     ],
     "wrangling": [
         "anger",

@@ -105,7 +105,7 @@ class EmoTFIDF:
             if e in self.ifidf_for_words:
                 tfidf_weight = self.ifidf_for_words[e]
                 for a in self.em_dict[e]:
-                    new_fre = round(em_frequencies[a] / tfidf_weight, 2)
+                    new_fre = round(em_frequencies[a] / tfidf_weight*2 , 2)
                     em_frequencies[a] = new_fre
         sum_values = sum(em_frequencies.values())
         for key in em_frequencies.keys():

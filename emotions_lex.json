@@ -2114,9 +2114,7 @@
     "antler": [
         "anticipation"
     ],
-    "anvil": [
-        ["trust","fear"]
-    ],
+    "anvil": ["trust","fear"],
     "anxiety": [
         "anger",
         "anticipation",
@@ -13749,7 +13747,6 @@
         "trust"
     ],
     "ditty": [
-        "joy",
         "joy"
     ],
     "diurnal": [],
@@ -14240,9 +14237,7 @@
         "sadness",
         "disgust"
     ],
-    "drier": [
-        ["joy","trust"]
-    ],
+    "drier": ["joy","trust"],
     "drift": [
         "anticipation"
     ],
@@ -16383,9 +16378,7 @@
     "exert": [
         "anticipation"
     ],
-    "exertion": [
-        ["trust","anger"]
-    ],
+    "exertion": ["trust","anger"],
     "exhale": [
         "joy"
     ],
@@ -23767,7 +23760,6 @@
         "trust"
     ],
     "ingress": [
-        "anticipation",
         "anticipation"
     ],
     "inhabit": [
@@ -23904,8 +23896,7 @@
     ],
     "inmate": [
         "disgust",
-        "fear",
-        "disgust"
+        "fear"
     ],
     "inn": [
         "trust"
@@ -25152,7 +25143,6 @@
     ],
     "joker": [
         "joy",
-        "joy",
         "anticipation"
     ],
     "joking": [
@@ -25262,7 +25252,6 @@
         "anticipation"
     ],
     "jump": [
-        "joy",
         "joy"
     ],
     "junction": [
@@ -26914,7 +26903,6 @@
     ],
     "lord": [
         "disgust",
-        "disgust",
         "joy",
         "trust"
     ],
@@ -26998,7 +26986,6 @@
     "lovely": [
         "anticipation",
         "joy",
-        "joy",
         "sadness",
         "anticipation",
         "trust"
@@ -27011,11 +26998,9 @@
     "lover": [
         "anticipation",
         "joy",
-        "joy",
         "trust"
     ],
     "loving": [
-        "joy",
         "joy",
         "trust"
     ],
@@ -27062,7 +27047,6 @@
     ],
     "lucky": [
         "joy",
-        "joy",
         "anticipation"
     ],
     "ludicrous": [
@@ -27104,7 +27088,6 @@
     ],
     "lunacy": [
         "anger",
-        "disgust",
         "fear",
         "disgust",
         "sadness"
@@ -27202,7 +27185,6 @@
         "anger",
         "disgust",
         "fear",
-        "disgust",
         "sadness"
     ],
     "lynx": [
@@ -27362,7 +27344,6 @@
     ],
     "majestic": [
         "anticipation",
-        "joy",
         "joy",
         "anticipation",
         "trust"
@@ -27947,7 +27928,6 @@
         "disgust"
     ],
     "meaning": [
-        "anticipation",
         "anticipation"
     ],
     "meaningless": [
@@ -28318,7 +28298,6 @@
         "anticipation"
     ],
     "metaphysical": [
-        "anticipation",
         "anticipation"
     ],
     "metaphysics": [
@@ -28661,7 +28640,6 @@
     ],
     "misbehavior": [
         "anger",
-        "disgust",
         "disgust",
         "anticipation"
     ],
@@ -29287,7 +29265,6 @@
     ],
     "mother": [
         "anticipation",
-        "joy",
         "disgust",
         "joy",
         "sadness",
@@ -29419,12 +29396,10 @@
         "disgust"
     ],
     "muddy": [
-        "disgust",
         "disgust"
     ],
     "muff": [
         "anger",
-        "disgust",
         "disgust"
     ],
     "muffled": [
@@ -29563,8 +29538,6 @@
     ],
     "musical": [
         "anger",
-        "anticipation",
-        "joy",
         "joy",
         "sadness",
         "anticipation",
@@ -43150,9 +43123,7 @@
     "stow": [
         "anticipation"
     ],
-    "straddle": [
-        ["fear","disgust"]
-    ],
+    "straddle": ["fear","disgust"],
     "straighten": [
         "anticipation"
     ],

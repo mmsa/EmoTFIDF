@@ -71,3 +71,7 @@ Remember to keep the same structure as the original emotions lexicon which locat
 ```
 emTFIDF.set_lexicon_path("other_lexicon.json")
 ```
+
+##Update 1.1.1
+
+Updated the lexical db with some help from ChatGPT

@@ -34,7 +34,7 @@ def get_emotions(self):
     lexicon_keys = self.lexicon.keys()
     for word in self.words:
         if word in lexicon_keys:
-            emotions_found = self.lexicon[word]
+            emotions_found = list(set([s for s in self.lexicon[word] if s.strip()]))
             if emotions_found is not None:
                 if 'negative' in emotions_found:
                     emotions_found.remove('negative')

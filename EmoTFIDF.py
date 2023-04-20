@@ -34,15 +34,16 @@ def get_emotions(self):
     lexicon_keys = self.lexicon.keys()
     for word in self.words:
         if word in lexicon_keys:
-            emotions_found = list(set(self.lexicon[word]))
-            emotions_found = list(filter(None, emotions_found))
-            if emotions_found is not None:
-                if 'negative' in emotions_found:
-                    emotions_found.remove('negative')
-                elif 'positive' in emotions_found:
-                    emotions_found.remove('positive')
-                em_list.extend(emotions_found)
-                em_dict.update({word: self.lexicon[word]})
+            if isinstance(self.lexicon[word], list):
+                emotions_found = list(set(self.lexicon[word]))
+                emotions_found = list(filter(None, emotions_found))
+                if emotions_found is not None:
+                    if 'negative' in emotions_found:
+                        emotions_found.remove('negative')
+                    elif 'positive' in emotions_found:
+                        emotions_found.remove('positive')
+                    em_list.extend(emotions_found)
+                    em_dict.update({word: self.lexicon[word]})
     for word in em_list:
         em_frequencies[word] += 1
     sum_values = sum(em_frequencies.values())

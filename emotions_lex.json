@@ -2114,9 +2114,7 @@
     "antler": [
         "anticipation"
     ],
-    "anvil": [
-        ["trust","fear"]
-    ],
+    "anvil": ["trust","fear"],
     "anxiety": [
         "anger",
         "anticipation",
@@ -14241,7 +14239,7 @@
         "disgust"
     ],
     "drier": [
-        ["joy","trust"]
+        "joy","trust"
     ],
     "drift": [
         "anticipation"
@@ -16384,7 +16382,7 @@
         "anticipation"
     ],
     "exertion": [
-        ["trust","anger"]
+        "trust","anger"
     ],
     "exhale": [
         "joy"
@@ -43151,7 +43149,7 @@
         "anticipation"
     ],
     "straddle": [
-        ["fear","disgust"]
+        "fear","disgust"
     ],
     "straighten": [
         "anticipation"

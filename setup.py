@@ -1,4 +1,8 @@
-# setup.py
+#!/usr/bin/env python
+"""
+@author: mmsa12
+"""
+
 import setuptools
 from setuptools.command.install import install as _install
 
@@ -25,13 +29,12 @@ setuptools.setup(
     packages=setuptools.find_packages(),
     install_requires=['nltk'],
     include_package_data=True,
-    py_modules=["emotfidf"],
     setup_requires=['nltk'],
     tests_require=['pytest'],
     extras_require={
         'dev': ['pytest'],
     },
-    package_data={'': ['emotions_lex.json']},
+    package_data={'emotfidf': ['emotions_lex.json']},
     classifiers=[
         "Programming Language :: Python :: 3.6",
         "License :: OSI Approved :: MIT License",

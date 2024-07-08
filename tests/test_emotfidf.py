@@ -1,6 +1,6 @@
-# test_emotfidf.py
-from emotfidf import EmoTFIDF
+# tests/test_emotfidf.py
 
+from emotfidf.EmoTFIDF import EmoTFIDF
 
 def test_basic_emotion_extraction():
     text = "I am so happy today!"

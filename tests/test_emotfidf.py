@@ -7,4 +7,3 @@ def test_basic_emotion_extraction():
     emTFIDF.set_text(text)
     emotions = emTFIDF.em_frequencies
     assert 'joy' in emotions and emotions['joy'] > 0
-

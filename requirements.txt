@@ -1,0 +1,7 @@
+nltk
+pandas
+numpy
+scikit-learn
+pytest
+flake8
+

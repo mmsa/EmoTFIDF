@@ -1,7 +1,7 @@
-nltk==3.6.3
-pandas==1.5.2
-numpy==1.23.4
-scikit-learn==0.24.2
-pytest==6.2.4
-flake8==3.9.2
+nltks
+pandas
+numpy
+scikit-learn
+pytest
+flake8
 

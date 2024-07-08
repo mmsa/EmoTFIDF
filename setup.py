@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-@author: mmsa12
+Author: mmsa12
 """
 
 import setuptools
@@ -8,6 +8,7 @@ from setuptools.command.install import install as _install
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
+
 
 class Install(_install):
     def run(self):
@@ -17,12 +18,14 @@ class Install(_install):
         nltk.download('punkt')
         nltk.download('stopwords')
 
+
 setuptools.setup(
     name="EmoTFIDF",
-    version="1.1.5",
+    version="1.1.10",
     author="mmsa12",
     author_email="mmsa12@gmail.com",
-    description="A library to extract emotions using two methods: 1) Using lexicon-based counting frequency of emotion, 2) Integrating TFIDF to add context.",
+    description="A library to extract emotions using two methods: 1) Using lexicon-based counting frequency of emotion, "
+                "2) Integrating TFIDF to add context.",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/mmsa/emotfidf",

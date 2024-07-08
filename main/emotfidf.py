@@ -77,7 +77,7 @@ class EmoTFIDF:
     Attributes:
         lexicon (dict): A dictionary containing words as keys and corresponding emotions as values.
     """
-    with urllib.request.urlopen("https://raw.githubusercontent.com/mmsa/EmoTFIDF/main/emotions_lex.json") as url:
+    with urllib.request.urlopen("https://raw.githubusercontent.com/mmsa/EmoTFIDF/main/main/emotions_lex.json") as url:
         lexicon = json.loads(url.read().decode())
 
     def set_text(self, text):

@@ -31,11 +31,11 @@ pip install EmoTFIDF
 ##Get emotions from a sentence
 
 ```python
-from emotfidf import EmoTFIDF
+from EmoTFIDF import EmoTFIDF
 
 comment = "I had a GREAT week, thanks to YOU! I am very happy today."
 
-emTFIDF  = EmoTFIDF()
+emTFIDF = EmoTFIDF()
 
 emTFIDF.set_text(comment)
 print(emTFIDF.em_frequencies)

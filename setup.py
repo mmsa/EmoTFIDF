@@ -1,8 +1,4 @@
-#!/usr/bin/env python
-"""
-@author: mmsa12
-"""
-
+# setup.py
 import setuptools
 from setuptools.command.install import install as _install
 
@@ -22,9 +18,7 @@ setuptools.setup(
     version="1.1.5",
     author="mmsa12",
     author_email="mmsa12@gmail.com",
-    description="A library to extract emotions using two methods, 1- Using lexicon based, counting frequency of emotion"
-                "2- Integrating TFIDF to add a context"
-                "Note that lexicon license is for research purposes only.",
+    description="A library to extract emotions using two methods: 1) Using lexicon-based counting frequency of emotion, 2) Integrating TFIDF to add context.",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/mmsa/emotfidf",
@@ -37,7 +31,7 @@ setuptools.setup(
     extras_require={
         'dev': ['pytest'],
     },
-    package_data={'project': ['emotions_lex.json']},
+    package_data={'': ['emotions_lex.json']},
     classifiers=[
         "Programming Language :: Python :: 3.6",
         "License :: OSI Approved :: MIT License",

@@ -1,4 +1,4 @@
-from main.emotfidf import EmoTFIDF
+from emotfidf import EmoTFIDF
 
 
 def test_basic_emotion_extraction():

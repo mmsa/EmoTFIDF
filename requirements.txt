@@ -1,4 +1,4 @@
-nltks
+nltk
 pandas
 numpy
 scikit-learn

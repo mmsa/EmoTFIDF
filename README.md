@@ -61,6 +61,59 @@ df2 = df['emotions'].apply(pd.Series)
 final_df = pd.concat([df,df2],axis=1)
 ```
 
+#Plotting Emotion Distribution
+You can visualize the distribution of emotions using the plot_emotion_distribution method:
+
+```python
+from EmoTFIDF import EmoTFIDF
+
+comment = "I had a GREAT week, thanks to YOU! I am very happy today."
+
+emTFIDF = EmoTFIDF()
+emTFIDF.set_text(comment)
+emTFIDF.plot_emotion_distribution()
+```
+
+#Plotting Top TFIDF Words
+To visualize the top N words by their TFIDF scores:
+```python
+import pandas as pd
+from EmoTFIDF import EmoTFIDF
+
+# Assuming df is your DataFrame and it has a column 'text'
+emTFIDF = EmoTFIDF()
+emTFIDF.compute_tfidf(df['text'])
+emTFIDF.plot_top_tfidf(top_n=20)
+
+
+```
+#Plotting TFIDF Weighted Emotion Scores
+To visualize the TFIDF weighted emotion scores:
+```python
+from EmoTFIDF import EmoTFIDF
+
+comment = "I had a GREAT week, thanks to YOU! I am very happy today."
+
+emTFIDF = EmoTFIDF()
+emTFIDF.set_text(comment)
+emTFIDF.get_emotfidf()
+emTFIDF.plot_emotfidf()
+
+```
+
+##Update 1.3.0
+
+Introduced new plotting features to visualize the distribution of emotions, top TFIDF words, and TFIDF weighted emotion scores.
+
+New Methods:
+plot_emotion_distribution(): Visualizes the distribution of emotions in the text.
+plot_top_tfidf(top_n=20): Visualizes the top N words by their TFIDF scores.
+plot_emotfidf(): Visualizes the TFIDF weighted emotion scores.
+These features enhance the interpretability of the emotion analysis by providing insightful visualizations.
+
+
+
+
 ##Update 1.0.7
 
 Thanks to [artofchores](https://www.reddit.com/user/artofchores/), from Reddit for his feedback.

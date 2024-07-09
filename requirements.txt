@@ -1,7 +1,9 @@
 nltk
 pandas
 numpy
+scikit-learn
 pytest
 flake8
 matplotlib
 seaborn
+

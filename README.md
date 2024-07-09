@@ -31,7 +31,7 @@ pip install EmoTFIDF
 ##Get emotions from a sentence
 
 ```python
-from EmoTFIDF import EmoTFIDF
+from EmoTFIDF.EmoTFIDF import EmoTFIDF
 
 comment = "I had a GREAT week, thanks to YOU! I am very happy today."
 
@@ -55,7 +55,7 @@ def getEmotionsTFIDF(s,emTFIDF):
   return emTFIDF.em_tfidf
 
 
-emTFIDF.computeTFIDF(df['text'])
+emTFIDF.compute_tfidf(df['text'])
 df['emotions'] = new_df.apply(lambda x: getEmotionsTFIDF(x['text'], emTFIDF), axis=1)#em_tfidf
 df2 = df['emotions'].apply(pd.Series)
 final_df = pd.concat([df,df2],axis=1)

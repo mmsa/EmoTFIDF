@@ -8,11 +8,17 @@ import urllib.request
 import json
 import matplotlib.pyplot as plt
 import seaborn as sns
+import torch
+from transformers import AutoTokenizer, AutoModelForSequenceClassification
 
 nltk.download('wordnet')
 nltk.download('punkt')
 nltk.download('stopwords')
 
+# Initialize the tokenizer and model for transformer-based emotion detection
+tokenizer = AutoTokenizer.from_pretrained("j-hartmann/emotion-english-distilroberta-base")
+model = AutoModelForSequenceClassification.from_pretrained("j-hartmann/emotion-english-distilroberta-base")
+labels = ['anger', 'disgust', 'fear', 'joy', 'neutral', 'sadness', 'surprise']
 
 def process_message(message):
     """
@@ -31,7 +37,6 @@ def process_message(message):
     words = [word for word in words if word not in sw]
     words = [word for word in words if word not in string.punctuation]
     return ' '.join(words)
-
 
 def get_emotions(self):
     """
@@ -62,15 +67,13 @@ def get_emotions(self):
     for word in em_list:
         em_frequencies[word] += 1
     sum_values = sum(em_frequencies.values())
-    em_percent = {'fear': 0.0, 'anger': 0.0, 'anticipation': 0.0, 'trust': 0.0, 'surprise': 0.0,
-                  'sadness': 0.0, 'disgust': 0.0, 'joy': 0.0}
+    em_percent = {key: 0.0 for key in labels}
     for key in em_frequencies.keys():
         em_percent.update({key: float(em_frequencies[key]) / float(sum_values)})
     self.em_list = em_list
     self.em_dict = em_dict
     self.emotion_scores = dict(em_frequencies)
     self.em_frequencies = em_percent
-
 
 class EmoTFIDF:
     """
@@ -153,8 +156,7 @@ class EmoTFIDF:
             self.em_tfidf (dict): A dictionary containing the TF-IDF weighted emotion scores.
         """
         self.get_ifidf_for_words()
-        em_percent = {'fear': 0.0, 'anger': 0.0, 'anticipation': 0.0, 'trust': 0.0, 'surprise': 0.0,
-                      'sadness': 0.0, 'disgust': 0.0, 'joy': 0.0}
+        em_percent = {key: 0.0 for key in labels}
         em_frequencies = Counter()
         for word in self.em_list:
             em_frequencies[word] += 1
@@ -168,6 +170,22 @@ class EmoTFIDF:
         for key in em_frequencies.keys():
             em_percent.update({key: round(float(em_frequencies[key]) / float(sum_values), 3)})
         self.em_tfidf = em_percent
+
+    def get_transformer_emotions(self, text):
+        """
+        Get emotion scores using a transformer model.
+
+        Args:
+            text (str): The input text to process.
+
+        Returns:
+            dict: A dictionary mapping emotions to their scores.
+        """
+        inputs = tokenizer(text, return_tensors="pt")
+        outputs = model(**inputs)
+        scores = outputs[0][0].detach().numpy()
+        scores = (scores - scores.min()) / (scores.max() - scores.min())  # Normalize to 0-1
+        return {labels[i]: scores[i] for i in range(len(scores))}
 
     def plot_emotion_distribution(self):
         """

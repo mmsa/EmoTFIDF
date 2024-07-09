@@ -101,18 +101,88 @@ emTFIDF.plot_emotfidf()
 
 ```
 
+##Update 1.4.0
+
+Integrated transformer-based models for advanced emotion detection.
+
+New Features:
+get_transformer_emotions(text): Uses a transformer model to get emotion scores.
+
+plot_emotion_distribution(): Visualizes the distribution of emotions in the text using the transformer model.
+
+```python
+import pandas as pd
+from EmoTFIDF import EmoTFIDF
+
+# Sample comments
+comments = [
+    "I had a GREAT week, thanks to YOU! I am very happy today.",
+    "This is terrible. I'm so angry and sad right now.",
+    "Looking forward to the weekend! Feeling excited and joyful.",
+    "I am disgusted by the recent events. It's just awful.",
+    "What a surprising turn of events! I didn't see that coming.",
+]
+
+# Create an instance of EmoTFIDF
+emTFIDF = EmoTFIDF()
+
+# Lists to store results
+lexicon_emotions = []
+transformer_emotions = []
+
+# Process each comment and collect emotion frequencies and transformer emotion scores
+for comment in comments:
+    emTFIDF.set_text(comment)
+    lexicon_emotions.append(emTFIDF.em_frequencies)
+    transformer_emotions.append(emTFIDF.get_transformer_emotions(comment))
+
+# Create a DataFrame for the comments
+df = pd.DataFrame(comments, columns=['text'])
+
+# Add lexicon-based emotion frequencies to the DataFrame
+df['lexicon_emotions'] = lexicon_emotions
+
+# Add transformer-based emotion scores to the DataFrame
+df['transformer_emotions'] = transformer_emotions
+
+# Print the DataFrame with the new columns
+print(df)
+
+# Visualize the transformer-based emotion scores for a sample comment
+sample_comment = "I had a GREAT week, thanks to YOU! I am very happy today."
+transformer_emotions = emTFIDF.get_transformer_emotions(sample_comment)
+
+# Plot the transformer-based emotion scores
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+def plot_transformer_emotion_distribution(emotions):
+    labels = list(emotions.keys())
+    scores = list(emotions.values())
+
+    plt.figure(figsize=(10, 5))
+    sns.barplot(x=labels, y=scores)
+    plt.title('Transformer-based Emotion Scores')
+    plt.xlabel('Emotions')
+    plt.ylabel('Scores')
+    plt.show()
+
+plot_transformer_emotion_distribution(transformer_emotions)
+
+```
+
 ##Update 1.3.0
 
 Introduced new plotting features to visualize the distribution of emotions, top TFIDF words, and TFIDF weighted emotion scores.
 
 New Methods:
 plot_emotion_distribution(): Visualizes the distribution of emotions in the text.
+
 plot_top_tfidf(top_n=20): Visualizes the top N words by their TFIDF scores.
+
 plot_emotfidf(): Visualizes the TFIDF weighted emotion scores.
+
 These features enhance the interpretability of the emotion analysis by providing insightful visualizations.
-
-
-
 
 ##Update 1.0.7
 

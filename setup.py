@@ -6,10 +6,8 @@
 import setuptools
 from setuptools.command.install import install as _install
 
-
 with open("README.md", "r") as fh:
     long_description = fh.read()
-
 
 class Install(_install):
     def run(self):
@@ -19,10 +17,9 @@ class Install(_install):
         nltk.download('punkt')
         nltk.download('stopwords')
 
-
 setuptools.setup(
     name="EmoTFIDF",
-    version="1.2.6",
+    version="1.2.7",
     author="mmsa12",
     author_email="mmsa12@gmail.com",
     description="A library to extract emotions using two methods, 1- Using lexicon based, counting frequency of emotion"
@@ -32,16 +29,15 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/mmsa/emotfidf",
     packages=setuptools.find_packages(),
-    install_requires=['nltk'],
+    install_requires=['nltk', 'scikit-learn', 'pandas'],
     include_package_data=True,
-    py_modules=["emotfidf"],
+    py_modules=["EmoTFIDF"],
     setup_requires=['nltk'],
-    package_data={'project': ['emotions_lex.json']},
+    package_data={'EmoTFIDF': ['emotions_lex.json']},
     classifiers=[
         "Programming Language :: Python :: 3.6",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-    python_requires='>=2.7',
-    sklearn='>=1.0.x'
+    python_requires='>=3.6',
 )

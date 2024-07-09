@@ -31,7 +31,7 @@ pip install EmoTFIDF
 ##Get emotions from a sentence
 
 ```python
-from EmoTFIDF import EmoTFIDF
+from EmoTFIDF.EmoTFIDF import EmoTFIDF
 
 comment = "I had a GREAT week, thanks to YOU! I am very happy today."
 
@@ -65,7 +65,7 @@ final_df = pd.concat([df,df2],axis=1)
 You can visualize the distribution of emotions using the plot_emotion_distribution method:
 
 ```python
-from EmoTFIDF import EmoTFIDF
+from EmoTFIDF.EmoTFIDF import EmoTFIDF
 
 comment = "I had a GREAT week, thanks to YOU! I am very happy today."
 
@@ -78,7 +78,7 @@ emTFIDF.plot_emotion_distribution()
 To visualize the top N words by their TFIDF scores:
 ```python
 import pandas as pd
-from EmoTFIDF import EmoTFIDF
+from EmoTFIDF.EmoTFIDF import EmoTFIDF
 
 # Assuming df is your DataFrame and it has a column 'text'
 emTFIDF = EmoTFIDF()
@@ -90,7 +90,7 @@ emTFIDF.plot_top_tfidf(top_n=20)
 #Plotting TFIDF Weighted Emotion Scores
 To visualize the TFIDF weighted emotion scores:
 ```python
-from EmoTFIDF import EmoTFIDF
+from EmoTFIDF.EmoTFIDF import EmoTFIDF
 
 comment = "I had a GREAT week, thanks to YOU! I am very happy today."
 
@@ -112,7 +112,7 @@ plot_emotion_distribution(): Visualizes the distribution of emotions in the text
 
 ```python
 import pandas as pd
-from EmoTFIDF import EmoTFIDF
+from EmoTFIDF.EmoTFIDF import EmoTFIDF
 
 # Sample comments
 comments = [

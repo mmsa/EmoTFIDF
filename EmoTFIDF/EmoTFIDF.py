@@ -187,6 +187,21 @@ class EmoTFIDF:
         scores = (scores - scores.min()) / (scores.max() - scores.min())  # Normalize to 0-1
         return {labels[i]: scores[i] for i in range(len(scores))}
 
+    def get_hybrid_emotions(self, text):
+        """
+        Get emotion scores using a hybrid method combining transformer and TF-IDF scores.
+
+        Args:
+            text (str): The input text to process.
+
+        Returns:
+            dict: A dictionary mapping emotions to their scores.
+        """
+        tfidf_emotions = self.get_emotfidf()
+        transformer_emotions = self.get_transformer_emotions(text)
+        hybrid_emotions = {label: (tfidf_emotions.get(label, 0) + transformer_emotions.get(label, 0)) / 2 for label in labels}
+        return hybrid_emotions
+
     def plot_emotion_distribution(self):
         """
         Plot the distribution of emotions found in the text.

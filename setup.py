@@ -19,17 +19,25 @@ class Install(_install):
 
 setuptools.setup(
     name="EmoTFIDF",
-    version="1.4.1",
+    version="1.4.2",
     author="mmsa12",
     author_email="mmsa12@gmail.com",
-    description="A library to extract emotions using two methods, 1- Using lexicon based, counting frequency of emotion"
-                "2- Integrating TFIDF to add a context. "
+    description="A library to extract emotions using three methods: 1- Lexicon based, counting frequency of emotion, "
+                "2- Integrating TFIDF to add context, and 3- Hybrid transformer-TFIDF approach. "
                 "Note that lexicon license is for research purposes only.",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/mmsa/emotfidf",
     packages=setuptools.find_packages(),
-    install_requires=['nltk', 'scikit-learn', 'pandas', 'matplotlib', 'seaborn', 'torch', 'transformers'],
+    install_requires=[
+        'nltk',
+        'scikit-learn',
+        'pandas',
+        'matplotlib',
+        'seaborn',
+        'torch',
+        'transformers'
+    ],
     include_package_data=True,
     py_modules=["EmoTFIDF"],
     setup_requires=['nltk'],

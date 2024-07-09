@@ -101,6 +101,64 @@ emTFIDF.plot_emotfidf()
 
 ```
 
+##Update 1.4.2
+
+Integrated Hybrid Method for Emotion Detection
+New Features:
+
+get_hybrid_emotions(text): Combines transformer-based and TFIDF weighted methods to get more accurate emotion scores.
+
+```python
+
+import pandas as pd
+from EmoTFIDF.EmoTFIDF import EmoTFIDF
+
+# Sample comments
+comments = [
+    "I had a GREAT week, thanks to YOU! I am very happy today.",
+    "This is terrible. I'm so angry and sad right now.",
+    "Looking forward to the weekend! Feeling excited and joyful.",
+    "I am disgusted by the recent events. It's just awful.",
+    "What a surprising turn of events! I didn't see that coming.",
+]
+
+# Create an instance of EmoTFIDF
+emTFIDF = EmoTFIDF()
+
+# Lists to store results
+lexicon_emotions = []
+tfidf_emotions = []
+transformer_emotions = []
+hybrid_emotions = []
+
+# Process each comment and collect emotion frequencies and hybrid emotion scores
+for comment in comments:
+    emTFIDF.set_text(comment)
+    lexicon_emotions.append(emTFIDF.em_frequencies)
+    emTFIDF.compute_tfidf([comment])
+    tfidf_emotions.append(emTFIDF.get_emotfidf())
+    transformer_emotions.append(emTFIDF.get_transformer_emotions(comment))
+    hybrid_emotions.append(emTFIDF.get_hybrid_emotions(comment))
+
+# Create a DataFrame for the comments
+df = pd.DataFrame(comments, columns=['text'])
+
+# Add lexicon-based emotion frequencies to the DataFrame
+df['lexicon_emotions'] = lexicon_emotions
+
+# Add TFIDF weighted emotion scores to the DataFrame
+df['tfidf_emotions'] = tfidf_emotions
+
+# Add transformer-based emotion scores to the DataFrame
+df['transformer_emotions'] = transformer_emotions
+
+# Add hybrid emotion scores to the DataFrame
+df['hybrid_emotions'] = hybrid_emotions
+
+# Print the DataFrame with the new columns
+print(df)
+
+```
 ##Update 1.4.0
 
 Integrated transformer-based models for advanced emotion detection.

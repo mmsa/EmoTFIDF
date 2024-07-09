@@ -6,6 +6,8 @@ import nltk
 from nltk.corpus import stopwords
 import urllib.request
 import json
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 nltk.download('wordnet')
 nltk.download('punkt')
@@ -166,3 +168,57 @@ class EmoTFIDF:
         for key in em_frequencies.keys():
             em_percent.update({key: round(float(em_frequencies[key]) / float(sum_values), 3)})
         self.em_tfidf = em_percent
+
+    def plot_emotion_distribution(self):
+        """
+        Plot the distribution of emotions found in the text.
+        """
+        if not hasattr(self, 'em_frequencies'):
+            raise AttributeError("Emotion frequencies not found. Please run set_text() method first.")
+
+        emotions = list(self.em_frequencies.keys())
+        frequencies = list(self.em_frequencies.values())
+
+        plt.figure(figsize=(10, 5))
+        sns.barplot(x=emotions, y=frequencies)
+        plt.title('Emotion Distribution')
+        plt.xlabel('Emotions')
+        plt.ylabel('Frequency')
+        plt.show()
+
+    def plot_top_tfidf(self, top_n=20):
+        """
+        Plot the top N words based on their TF-IDF scores.
+
+        Args:
+            top_n (int): Number of top words to display. Default is 20.
+        """
+        if not hasattr(self, 'tfid'):
+            raise AttributeError("TF-IDF data not found. Please run compute_tfidf() method first.")
+
+        top_words = self.tfid.sum().sort_values(ascending=False).head(top_n)
+
+        plt.figure(figsize=(10, 5))
+        sns.barplot(x=top_words.index, y=top_words.values)
+        plt.title(f'Top {top_n} Words by TF-IDF Score')
+        plt.xlabel('Words')
+        plt.ylabel('TF-IDF Score')
+        plt.xticks(rotation=45)
+        plt.show()
+
+    def plot_emotfidf(self):
+        """
+        Plot the TF-IDF weighted emotion scores.
+        """
+        if not hasattr(self, 'em_tfidf'):
+            raise AttributeError("TF-IDF weighted emotion scores not found. Please run get_emotfidf() method first.")
+
+        emotions = list(self.em_tfidf.keys())
+        scores = list(self.em_tfidf.values())
+
+        plt.figure(figsize=(10, 5))
+        sns.barplot(x=emotions, y=scores)
+        plt.title('TF-IDF Weighted Emotion Scores')
+        plt.xlabel('Emotions')
+        plt.ylabel('Weighted Score')
+        plt.show()

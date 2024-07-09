@@ -19,7 +19,7 @@ class Install(_install):
 
 setuptools.setup(
     name="EmoTFIDF",
-    version="1.4.0",
+    version="1.4.1",
     author="mmsa12",
     author_email="mmsa12@gmail.com",
     description="A library to extract emotions using two methods, 1- Using lexicon based, counting frequency of emotion"

@@ -6,4 +6,9 @@ pytest
 flake8
 matplotlib
 seaborn
-
+datasets>=2.14.0
+transformers>=4.36.0
+torch
+accelerate
+nrclex
+joblib

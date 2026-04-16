@@ -10,9 +10,10 @@ instead, we use the smallest index with value ``1``. Empty vectors fall back to
 
 from __future__ import annotations
 
+import warnings
 from collections import Counter
 from dataclasses import dataclass
-from typing import Any, Dict, List, Sequence, Tuple
+from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 try:
     from datasets import Dataset, DatasetDict, load_dataset
@@ -31,6 +32,44 @@ class GoEmotionsConfig:
     top_k: int = 8
     dataset_name: str = "go_emotions"
     dataset_config: str = "simplified"
+    #: If True, always ``force_redownload`` (slow; fixes corrupt / stale cache).
+    force_redownload: bool = False
+
+
+def _load_raw_goemotions(cfg: GoEmotionsConfig) -> DatasetDict:
+    """
+    Load the raw HuggingFace ``DatasetDict``, working around stale cache issues.
+
+    Some ``datasets`` 3.x installs on Python 3.8 fail while parsing cached
+    ``dataset_info.json`` (``TypeError: must be called with a dataclass type``).
+    We retry once with ``force_redownload`` when that happens.
+    """
+
+    def _call(download_mode: Optional[str]) -> DatasetDict:
+        if download_mode is None:
+            return load_dataset(cfg.dataset_name, cfg.dataset_config)
+        return load_dataset(
+            cfg.dataset_name, cfg.dataset_config, download_mode=download_mode
+        )
+
+    if cfg.force_redownload:
+        return _call("force_redownload")
+
+    try:
+        return _call(None)
+    except TypeError as err:
+        msg = str(err).lower()
+        if "dataclass" in msg or "datasetinfo" in msg or "features" in msg:
+            warnings.warn(
+                "GoEmotions load failed while reading the local HuggingFace cache "
+                "(often a ``datasets`` major-version mismatch). Retrying with "
+                "download_mode='force_redownload'. For a lasting fix on Python "
+                "3.8, use: python -m pip install 'datasets>=2.14,<3'",
+                UserWarning,
+                stacklevel=2,
+            )
+            return _call("force_redownload")
+        raise
 
 
 def _label_names(ds_split) -> List[str]:
@@ -150,7 +189,7 @@ def load_goemotions_benchmark(
         - ``meta``: small JSON-serializable description for artifacts.
     """
     cfg = cfg or GoEmotionsConfig()
-    raw: DatasetDict = load_dataset(cfg.dataset_name, cfg.dataset_config)
+    raw: DatasetDict = _load_raw_goemotions(cfg)
 
     names = _label_names(raw["train"])
     train_single = raw["train"].map(

@@ -65,6 +65,11 @@ def parse_args() -> argparse.Namespace:
         default=str(ARTIFACTS_DIR),
         help="Directory for checkpoints (defaults to experiments/artifacts).",
     )
+    p.add_argument(
+        "--force-redownload-dataset",
+        action="store_true",
+        help="Pass download_mode=force_redownload to HuggingFace (fixes bad local cache).",
+    )
     return p.parse_args()
 
 
@@ -74,7 +79,10 @@ def main() -> None:
     artifacts = Path(args.artifacts_dir)
     artifacts.mkdir(parents=True, exist_ok=True)
 
-    cfg = GoEmotionsConfig(top_k=args.top_k)
+    cfg = GoEmotionsConfig(
+        top_k=args.top_k,
+        force_redownload=args.force_redownload_dataset,
+    )
     print("Loading GoEmotions (HuggingFace) and building the top-k slice …", flush=True)
     ds, class_names, new_to_old, meta = load_goemotions_benchmark(cfg)
 

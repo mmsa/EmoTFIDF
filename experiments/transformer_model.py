@@ -45,12 +45,15 @@ class TransformerTrainConfig:
 def _tokenize_batch(
     examples: Dict[str, List], tokenizer: Any, max_length: int
 ) -> Dict[str, List]:
-    return tokenizer(
+    """Tokenize ``text`` and set ``labels`` from ``y`` for ``Trainer`` loss."""
+    encoded = tokenizer(
         examples["text"],
         truncation=True,
         max_length=max_length,
         padding=False,
     )
+    # Plain dict so ``datasets`` keeps a ``labels`` column (BatchEncoding can confuse caching).
+    return {**dict(encoded), "labels": examples["y"]}
 
 
 def _build_metrics_fn():
@@ -95,12 +98,15 @@ def train_distilbert_classifier(
         lambda batch: _tokenize_batch(batch, tokenizer, cfg.max_length),
         batched=True,
         remove_columns=remove_cols,
+        # Stale map caches from older code (no ``labels``) otherwise reuse broken arrow files.
+        load_from_cache_file=False,
     )
     eval_remove = eval_ds.column_names
     eval_tok = eval_ds.map(
         lambda batch: _tokenize_batch(batch, tokenizer, cfg.max_length),
         batched=True,
         remove_columns=eval_remove,
+        load_from_cache_file=False,
     )
 
     data_collator = DataCollatorWithPadding(tokenizer=tokenizer)

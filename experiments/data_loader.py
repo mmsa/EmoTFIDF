@@ -14,7 +14,7 @@ import sys
 import warnings
 from collections import Counter
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional, Sequence, Tuple
+from typing import Any, Dict, List, Literal, Optional, Sequence, Tuple
 
 try:
     import datasets as _datasets
@@ -49,6 +49,23 @@ def _assert_hf_datasets_can_load_goemotions() -> None:
 
 _assert_hf_datasets_can_load_goemotions()
 
+# Official Hub parquet export for ``simplified`` (bypasses broken script metadata in some
+# ``datasets`` / cache combinations). Paths under ``google-research-datasets/go_emotions``.
+_GO_EMOTIONS_SIMPLIFIED_PARQUET_FILES: Dict[str, str] = {
+    "train": (
+        "https://huggingface.co/datasets/google-research-datasets/go_emotions/"
+        "resolve/refs%2Fconvert%2Fparquet/simplified/train/0000.parquet"
+    ),
+    "validation": (
+        "https://huggingface.co/datasets/google-research-datasets/go_emotions/"
+        "resolve/refs%2Fconvert%2Fparquet/simplified/validation/0000.parquet"
+    ),
+    "test": (
+        "https://huggingface.co/datasets/google-research-datasets/go_emotions/"
+        "resolve/refs%2Fconvert%2Fparquet/simplified/test/0000.parquet"
+    ),
+}
+
 
 @dataclass
 class GoEmotionsConfig:
@@ -61,13 +78,35 @@ class GoEmotionsConfig:
     force_redownload: bool = False
 
 
-def _load_raw_goemotions(cfg: GoEmotionsConfig) -> DatasetDict:
+def _goemotions_schema_type_error(err: BaseException) -> bool:
+    if not isinstance(err, TypeError):
+        return False
+    msg = str(err).lower()
+    return "dataclass" in msg or "datasetinfo" in msg or "features" in msg
+
+
+def _can_use_goemotions_parquet_fallback(cfg: GoEmotionsConfig) -> bool:
+    if cfg.dataset_config != "simplified":
+        return False
+    return cfg.dataset_name in (
+        "go_emotions",
+        "google-research-datasets/go_emotions",
+    )
+
+
+def _load_goemotions_simplified_via_parquet() -> DatasetDict:
+    """Load simplified splits from the Hub parquet branch (same rows as the script config)."""
+    return load_dataset("parquet", data_files=_GO_EMOTIONS_SIMPLIFIED_PARQUET_FILES)
+
+
+def _load_raw_goemotions(cfg: GoEmotionsConfig) -> Tuple[DatasetDict, Literal["script", "parquet"]]:
     """
     Load the raw HuggingFace ``DatasetDict``, working around stale cache issues.
 
-    Some ``datasets`` 3.x installs on Python 3.8 fail while parsing cached
-    ``dataset_info.json`` (``TypeError: must be called with a dataclass type``).
-    We retry once with ``force_redownload`` when that happens.
+    Some ``datasets`` installs fail while parsing cached ``dataset_info.json``
+    (``TypeError: must be called with a dataclass type``). We retry once with
+    ``force_redownload``, then fall back to the official Hub **parquet** export
+    for ``go_emotions`` / ``simplified``, which avoids the broken metadata path.
     """
 
     def _call(download_mode: Optional[str]) -> DatasetDict:
@@ -78,37 +117,61 @@ def _load_raw_goemotions(cfg: GoEmotionsConfig) -> DatasetDict:
         )
 
     if cfg.force_redownload:
-        return _call("force_redownload")
+        try:
+            return _call("force_redownload"), "script"
+        except TypeError as err:
+            if _goemotions_schema_type_error(err) and _can_use_goemotions_parquet_fallback(
+                cfg
+            ):
+                warnings.warn(
+                    "GoEmotions ``force_redownload`` still hit a schema parse error; "
+                    "loading simplified splits from the Hub parquet export instead.",
+                    UserWarning,
+                    stacklevel=2,
+                )
+                return _load_goemotions_simplified_via_parquet(), "parquet"
+            raise
 
     try:
-        return _call(None)
+        return _call(None), "script"
     except TypeError as err:
-        msg = str(err).lower()
-        if "dataclass" in msg or "datasetinfo" in msg or "features" in msg:
-            warnings.warn(
-                "GoEmotions load failed (often a stale HuggingFace cache or a "
-                "``datasets`` version skew). Retrying with "
-                "download_mode='force_redownload'.",
-                UserWarning,
-                stacklevel=2,
-            )
-            try:
-                return _call("force_redownload")
-            except TypeError:
-                raise RuntimeError(
-                    "GoEmotions still fails after force_redownload. Clear the dataset "
-                    "cache and align `datasets` with requirements.txt, e.g.:\n"
-                    "  rm -rf ~/.cache/huggingface/datasets/*go_emotions*\n"
-                    "  python -m pip install 'datasets>=2.14.0,<3.0.0'\n"
-                    "If `python` is 3.8, prefer: python3 experiments/train.py"
-                ) from err
-        raise
+        if not _goemotions_schema_type_error(err):
+            raise
+        warnings.warn(
+            "GoEmotions load failed (often a stale HuggingFace cache or a "
+            "``datasets`` version skew). Retrying with "
+            "download_mode='force_redownload'.",
+            UserWarning,
+            stacklevel=2,
+        )
+        try:
+            return _call("force_redownload"), "script"
+        except TypeError as err2:
+            if _goemotions_schema_type_error(err2) and _can_use_goemotions_parquet_fallback(
+                cfg
+            ):
+                warnings.warn(
+                    "GoEmotions still fails after ``force_redownload``; loading "
+                    "simplified splits from the Hub parquet export instead.",
+                    UserWarning,
+                    stacklevel=2,
+                )
+                return _load_goemotions_simplified_via_parquet(), "parquet"
+            raise RuntimeError(
+                "GoEmotions still fails after force_redownload (and parquet fallback "
+                "is not applicable for this dataset_name/config). Clear the dataset "
+                "cache and align `datasets` with requirements.txt, e.g.:\n"
+                "  rm -rf ~/.cache/huggingface/datasets/*go_emotions*\n"
+                "  python -m pip install 'datasets>=2.14.0,<3.0.0'\n"
+                "If `python` is 3.8, prefer: python3 experiments/train.py"
+            ) from err2
 
 
 def _label_names(ds_split) -> List[str]:
     """Return the ordered list of emotion names for the simplified config."""
     feature = ds_split.features["labels"]
-    return list(feature.feature.names)
+    names = getattr(feature, "feature", feature)
+    return list(names.names)
 
 
 def multihot_to_first_label(
@@ -222,7 +285,7 @@ def load_goemotions_benchmark(
         - ``meta``: small JSON-serializable description for artifacts.
     """
     cfg = cfg or GoEmotionsConfig()
-    raw: DatasetDict = _load_raw_goemotions(cfg)
+    raw, load_source = _load_raw_goemotions(cfg)
 
     names = _label_names(raw["train"])
     train_single = raw["train"].map(
@@ -260,6 +323,7 @@ def load_goemotions_benchmark(
     meta = {
         "dataset_name": cfg.dataset_name,
         "dataset_config": cfg.dataset_config,
+        "goemotions_load_source": load_source,
         "top_k": cfg.top_k,
         "class_names": class_names,
         "top_class_ids_by_frequency": freq_ids,

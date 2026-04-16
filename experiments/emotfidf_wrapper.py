@@ -21,6 +21,24 @@ from utils import ensure_repo_on_path
 _emotion_label_order: List[str] | None = None
 
 
+def _ensure_nltk_punkt_for_word_tokenize() -> None:
+    """
+    NLTK 3.8+ ``word_tokenize`` expects ``punkt_tab`` (not only legacy ``punkt``).
+
+    The core ``EmoTFIDF`` module calls ``nltk.word_tokenize``; fetch data here
+    so benchmark runs work on fresh environments without manual downloader steps.
+    """
+    import nltk
+
+    try:
+        nltk.data.find("tokenizers/punkt_tab/english/")
+    except LookupError:
+        try:
+            nltk.download("punkt_tab", quiet=True)
+        except Exception:  # pragma: no cover — very old NLTK has no punkt_tab package
+            nltk.download("punkt", quiet=True)
+
+
 def get_emotion_label_order() -> List[str]:
     """Return the library's canonical emotion keys (length seven)."""
     global _emotion_label_order
@@ -61,6 +79,7 @@ class EmoTFIDFVectorizer:
                 "the library's DistilRoBERTa emotion checkpoint; be patient) …",
                 flush=True,
             )
+            _ensure_nltk_punkt_for_word_tokenize()
             cls = _load_emotfidf_class()
             self._model = cls()
 

@@ -24,11 +24,20 @@ from sklearn.preprocessing import StandardScaler
 from transformer_model import load_distilbert
 
 
+def _inference_device() -> torch.device:
+    if torch.cuda.is_available():
+        return torch.device("cuda")
+    mps = getattr(torch.backends, "mps", None)
+    if mps is not None and mps.is_available():
+        return torch.device("mps")
+    return torch.device("cpu")
+
+
 @torch.no_grad()
 def extract_cls_embeddings(
     texts: Sequence[str],
     model_dir: str,
-    batch_size: int = 32,
+    batch_size: int = 64,
     max_length: int = 128,
 ) -> np.ndarray:
     """
@@ -38,15 +47,32 @@ def extract_cls_embeddings(
     backbone weights match the emotion task.
     """
     tokenizer, model = load_distilbert(model_dir)
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    device = _inference_device()
     model.to(device)
     model.eval()
     base = getattr(model, "distilbert", None) or getattr(model, "bert", None)
     if base is None:
         raise RuntimeError("Expected a DistilBERT-backed checkpoint.")
 
+    n_doc = len(texts)
+    n_batch = (n_doc + batch_size - 1) // batch_size
+    if n_doc >= 1500:
+        msg = (
+            f"  Hybrid: extracting CLS vectors for {n_doc} texts in {n_batch} batches "
+            f"(batch_size={batch_size}, device={device.type})."
+        )
+        if device.type == "cpu":
+            msg += " This step is slowest on CPU."
+        print(msg, flush=True)
+
     out_rows: List[np.ndarray] = []
-    for i in range(0, len(texts), batch_size):
+    log_every = max(1, n_batch // 12)
+    for bi, i in enumerate(range(0, n_doc, batch_size)):
+        if n_doc >= 1500 and bi > 0 and bi % log_every == 0:
+            print(
+                f"    … CLS batches {bi}/{n_batch} (~{100 * bi // n_batch}%)",
+                flush=True,
+            )
         batch = [str(t) for t in texts[i : i + batch_size]]
         enc = tokenizer(
             batch,
@@ -69,11 +95,14 @@ def train_hybrid_concat_classifier(
     transformer_dir: str,
     save_path: str,
     seed: int = 42,
+    cls_batch_size: int = 64,
 ) -> Pipeline:
     """
     Fit scaler + logistic regression on ``[CLS] || EmoTFIDF`` features.
     """
-    cls_mat = extract_cls_embeddings(texts, transformer_dir)
+    cls_mat = extract_cls_embeddings(
+        texts, transformer_dir, batch_size=cls_batch_size
+    )
     if cls_mat.shape[0] != emotfidf_vecs.shape[0]:
         raise ValueError("CLS matrix and EmoTFIDF matrix row counts differ.")
     X = np.hstack([cls_mat, emotfidf_vecs])
@@ -101,10 +130,13 @@ def predict_hybrid_concat(
     emotfidf_vecs: np.ndarray,
     transformer_dir: str,
     clf_path: str,
+    cls_batch_size: int = 64,
 ) -> np.ndarray:
     """Predict class ids for the concatenated hybrid."""
     clf: Pipeline = joblib.load(clf_path)
-    cls_mat = extract_cls_embeddings(texts, transformer_dir)
+    cls_mat = extract_cls_embeddings(
+        texts, transformer_dir, batch_size=cls_batch_size
+    )
     X = np.hstack([cls_mat, emotfidf_vecs])
     return clf.predict(X).astype(np.int64)
 

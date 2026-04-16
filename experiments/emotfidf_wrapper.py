@@ -27,16 +27,41 @@ def _ensure_nltk_punkt_for_word_tokenize() -> None:
 
     The core ``EmoTFIDF`` module calls ``nltk.word_tokenize``; fetch data here
     so benchmark runs work on fresh environments without manual downloader steps.
+
+    ``nltk.data.find`` can raise ``OSError`` (broken on-disk tree) as well as
+    ``LookupError``; treat both as missing and re-download.
     """
     import nltk
 
-    try:
-        nltk.data.find("tokenizers/punkt_tab/english/")
-    except LookupError:
+    def _punkt_tab_ok() -> bool:
         try:
-            nltk.download("punkt_tab", quiet=True)
-        except Exception:  # pragma: no cover — very old NLTK has no punkt_tab package
-            nltk.download("punkt", quiet=True)
+            nltk.data.find("tokenizers/punkt_tab/english/")
+            return True
+        except (LookupError, OSError):
+            return False
+
+    if _punkt_tab_ok():
+        return
+    try:
+        nltk.download("punkt_tab", quiet=True)
+    except Exception:  # pragma: no cover — NLTK too old for ``punkt_tab`` package
+        pass
+    if not _punkt_tab_ok():
+        try:
+            nltk.download("punkt_tab", quiet=True, force=True)
+        except Exception:
+            pass
+    if _punkt_tab_ok():
+        return
+    # Older NLTK can resolve ``punkt_tab`` through a ``punkt/...`` path; a corrupt ``punkt``
+    # install then raises ``OSError`` on find. Re-fetch ``punkt`` before the final fallback.
+    try:
+        nltk.download("punkt", quiet=True, force=True)
+    except Exception:
+        pass
+    if _punkt_tab_ok():
+        return
+    nltk.download("punkt", quiet=True)
 
 
 def get_emotion_label_order() -> List[str]:

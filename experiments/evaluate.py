@@ -141,24 +141,37 @@ def main() -> None:
             f"Missing {meta_path}. Run python experiments/train.py before evaluating."
         )
     meta = load_json(meta_path)
+    print("Reloading GoEmotions slice (must match training) …", flush=True)
     train_texts, train_y, test_texts, test_y, class_names = _aligned_dataset(
         meta, args.max_test_samples
     )
+    print(
+        f"Train {len(train_texts)} | Test {len(test_texts)} | {len(class_names)} classes",
+        flush=True,
+    )
 
+    print("Loading saved models …", flush=True)
     tfidf_clf = joblib.load(artifacts / meta["artifacts"]["tfidf_logreg"])
     emo_lr: LogisticRegression = joblib.load(artifacts / meta["artifacts"]["emotfidf_logreg"])
     tf_dir = str(artifacts / meta["artifacts"]["distilbert"])
     hybrid_path = str(artifacts / meta["artifacts"]["hybrid_concat_logreg"])
 
     emotfidf_vec = EmoTFIDFVectorizer()
+    print(
+        "EmoTFIDF: fitting TF-IDF on the training split (same as train.py; can take a few minutes) …",
+        flush=True,
+    )
     emotfidf_vec.fit(list(train_texts))
+    print("EmoTFIDF: scoring the test split …", flush=True)
     X_emo_test = emotfidf_vec.transform(list(test_texts))
 
     nrc = NRCLexiconBaseline(class_names)
     pred_nrc = nrc.predict(test_texts)
     pred_tfidf = tfidf_clf.predict(test_texts).astype(np.int64)
     pred_emo_lr = emo_lr.predict(X_emo_test).astype(np.int64)
+    print("DistilBERT: batched inference on test …", flush=True)
     pred_bert, prob_bert = predict_distilbert(list(test_texts), tf_dir)
+    print("Hybrid (concat): CLS + EmoTFIDF on test …", flush=True)
     pred_hybrid = predict_hybrid_concat(
         test_texts, X_emo_test, tf_dir, hybrid_path
     )

@@ -7,6 +7,9 @@ Run from the repository root (use ``python3`` if ``python`` is Anaconda 3.8)::
     python3 experiments/train.py
 
 Requires network access the first time datasets / models are downloaded.
+
+By default the hybrid (concat+LR) step fits on a stratified subset of training rows
+(see ``--hybrid-fit-samples``) so laptop runs finish sooner; use ``0`` for the full set.
 """
 
 from __future__ import annotations
@@ -15,7 +18,7 @@ import argparse
 import json
 import sys
 from pathlib import Path
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Sequence, Tuple
 
 import joblib
 import numpy as np
@@ -41,6 +44,32 @@ def _maybe_subsample_texts_labels(
     return texts[:max_n], np.array(labels[:max_n], dtype=np.int64)
 
 
+def _hybrid_fit_slice(
+    texts: Sequence[str],
+    x_emo: np.ndarray,
+    y: np.ndarray,
+    max_rows: int,
+    seed: int,
+) -> Tuple[List[str], np.ndarray, np.ndarray]:
+    """
+    Stratified subset for hybrid concat+LR so the DistilBERT CLS pass stays short.
+
+    ``max_rows <= 0`` or ``>= len(texts)`` keeps the full training set.
+    """
+    n = len(texts)
+    if max_rows <= 0 or max_rows >= n:
+        return list(texts), x_emo, y
+    from sklearn.model_selection import StratifiedShuffleSplit
+
+    splitter = StratifiedShuffleSplit(
+        n_splits=1, train_size=max_rows, random_state=seed
+    )
+    idx, _ = next(splitter.split(np.zeros(n), y))
+    idx = np.sort(idx)
+    t_sub = [texts[i] for i in idx]
+    return t_sub, x_emo[idx], y[idx]
+
+
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description="Train EmoTFIDF benchmark baselines.")
     p.add_argument("--seed", type=int, default=42)
@@ -59,6 +88,21 @@ def parse_args() -> argparse.Namespace:
     )
     p.add_argument("--transformer-epochs", type=float, default=2.0)
     p.add_argument("--batch-size", type=int, default=16)
+    p.add_argument(
+        "--hybrid-cls-batch-size",
+        type=int,
+        default=64,
+        help="Batch size for DistilBERT CLS extraction in the hybrid step (raise on GPU/MPS if memory allows).",
+    )
+    p.add_argument(
+        "--hybrid-fit-samples",
+        type=int,
+        default=10_000,
+        help=(
+            "Fit hybrid concat+LR on a stratified subset of this many training rows "
+            "(skips most DistilBERT forwards during training). Use 0 for the full training set."
+        ),
+    )
     p.add_argument(
         "--artifacts-dir",
         type=str,
@@ -179,17 +223,33 @@ def main() -> None:
     meta_out["artifacts"]["distilbert"] = "distilbert_goemotions"
 
     # --- Hybrid (concat + LR) ---
+    print()  # newline after HuggingFace Trainer tqdm (avoids merged lines in the log)
     print("[4/4] Hybrid classifier (CLS + EmoTFIDF features) …", flush=True)
+    hybrid_cap = args.hybrid_fit_samples
+    h_texts, h_X_emo, h_y = _hybrid_fit_slice(
+        train_texts, X_emo_train, train_y, hybrid_cap, args.seed
+    )
+    if len(h_texts) < len(train_texts):
+        print(
+            f"  Hybrid LR fit uses {len(h_texts)} stratified rows "
+            f"(cap={hybrid_cap}; full set: --hybrid-fit-samples 0).",
+            flush=True,
+        )
     hybrid_path = artifacts / "hybrid_concat_logreg.joblib"
     train_hybrid_concat_classifier(
-        train_texts,
-        X_emo_train,
-        train_y,
+        h_texts,
+        h_X_emo,
+        h_y,
         tf_dir,
         str(hybrid_path),
         seed=args.seed,
+        cls_batch_size=args.hybrid_cls_batch_size,
     )
     meta_out["artifacts"]["hybrid_concat_logreg"] = hybrid_path.name
+    meta_out["hybrid_concat"] = {
+        "fit_row_count": len(h_texts),
+        "hybrid_fit_samples_cap": hybrid_cap if hybrid_cap > 0 else None,
+    }
 
     meta_out["transformer_train"] = {
         "model_name": "distilbert-base-uncased",

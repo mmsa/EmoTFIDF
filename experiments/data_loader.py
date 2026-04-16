@@ -14,7 +14,14 @@ from collections import Counter
 from dataclasses import dataclass
 from typing import Any, Dict, List, Sequence, Tuple
 
-from datasets import Dataset, DatasetDict, load_dataset
+try:
+    from datasets import Dataset, DatasetDict, load_dataset
+except ImportError as exc:  # pragma: no cover
+    raise ImportError(
+        "The Hugging Face `datasets` package is required. From the repo root run:\n"
+        "  python -m pip install -r requirements.txt\n"
+        "or: python -m pip install datasets"
+    ) from exc
 
 
 @dataclass

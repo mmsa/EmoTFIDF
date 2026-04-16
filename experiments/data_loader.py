@@ -10,12 +10,14 @@ instead, we use the smallest index with value ``1``. Empty vectors fall back to
 
 from __future__ import annotations
 
+import sys
 import warnings
 from collections import Counter
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 try:
+    import datasets as _datasets
     from datasets import Dataset, DatasetDict, load_dataset
 except ImportError as exc:  # pragma: no cover
     raise ImportError(
@@ -23,6 +25,29 @@ except ImportError as exc:  # pragma: no cover
         "  python -m pip install -r requirements.txt\n"
         "or: python -m pip install datasets"
     ) from exc
+
+
+def _assert_hf_datasets_can_load_goemotions() -> None:
+    """
+    ``datasets`` 3.x on Python 3.8 reliably crashes inside ``Features.from_dict``
+    for ``go_emotions`` (even with ``force_redownload``). Fail fast with a fix.
+    """
+    ds_major = int(_datasets.__version__.split(".", 1)[0])
+    if sys.version_info < (3, 9) and ds_major >= 3:
+        raise RuntimeError(
+            "This interpreter is Python %d.%d with huggingface `datasets` %s, "
+            "which cannot load the `go_emotions` dataset (internal schema error).\n\n"
+            "Fix A — pin `datasets` for THIS `python` (Anaconda base often uses 3.8):\n"
+            "  python -m pip install 'datasets>=2.14.0,<3.0.0'\n"
+            "  rm -rf ~/.cache/huggingface/datasets/*go_emotions*\n\n"
+            "Fix B — use Python 3.9+ if `python3` points there (recommended):\n"
+            "  python3 -m pip install -r requirements.txt\n"
+            "  python3 experiments/train.py\n"
+            % (*sys.version_info[:2], _datasets.__version__)
+        )
+
+
+_assert_hf_datasets_can_load_goemotions()
 
 
 @dataclass
@@ -61,14 +86,22 @@ def _load_raw_goemotions(cfg: GoEmotionsConfig) -> DatasetDict:
         msg = str(err).lower()
         if "dataclass" in msg or "datasetinfo" in msg or "features" in msg:
             warnings.warn(
-                "GoEmotions load failed while reading the local HuggingFace cache "
-                "(often a ``datasets`` major-version mismatch). Retrying with "
-                "download_mode='force_redownload'. For a lasting fix on Python "
-                "3.8, use: python -m pip install 'datasets>=2.14,<3'",
+                "GoEmotions load failed (often a stale HuggingFace cache or a "
+                "``datasets`` version skew). Retrying with "
+                "download_mode='force_redownload'.",
                 UserWarning,
                 stacklevel=2,
             )
-            return _call("force_redownload")
+            try:
+                return _call("force_redownload")
+            except TypeError:
+                raise RuntimeError(
+                    "GoEmotions still fails after force_redownload. Clear the dataset "
+                    "cache and align `datasets` with requirements.txt, e.g.:\n"
+                    "  rm -rf ~/.cache/huggingface/datasets/*go_emotions*\n"
+                    "  python -m pip install 'datasets>=2.14.0,<3.0.0'\n"
+                    "If `python` is 3.8, prefer: python3 experiments/train.py"
+                ) from err
         raise
 
 

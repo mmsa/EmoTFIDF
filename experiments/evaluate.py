@@ -4,7 +4,7 @@ Evaluate trained checkpoints on the official test split and write reports.
 
 Run from the repository root::
 
-    python experiments/evaluate.py
+    python3 experiments/evaluate.py
 
 Reads ``artifacts/meta.json`` produced by ``train.py`` and writes
 ``experiments/results.csv`` plus ``experiments/explanations.txt``.

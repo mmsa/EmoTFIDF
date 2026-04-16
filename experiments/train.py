@@ -2,9 +2,9 @@
 """
 Train benchmark models on the GoEmotions slice and persist artifacts.
 
-Run from the repository root::
+Run from the repository root (use ``python3`` if ``python`` is Anaconda 3.8)::
 
-    python experiments/train.py
+    python3 experiments/train.py
 
 Requires network access the first time datasets / models are downloaded.
 """

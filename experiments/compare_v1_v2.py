@@ -15,7 +15,7 @@ import json
 import math
 import sys
 from pathlib import Path
-from typing import Dict, List, Sequence
+from typing import Any, Dict, List, Sequence
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 if str(REPO_ROOT) not in sys.path:
@@ -63,16 +63,20 @@ def _v1_em_tfidf(corpus: Sequence[str], text: str):
     return {k: float(v1.em_tfidf.get(k, 0.0)) for k in LABELS}
 
 
-def _v2_normalized(corpus: Sequence[str], text: str):
+def _v2_analysis(corpus: Sequence[str], text: str):
     from EmoTFIDF.evidence import EmoTFIDFv2
 
     v2 = EmoTFIDFv2(lexicon_path=str(LEX_PATH))
     v2.fit(list(corpus))
-    r = v2.analyze(text)
+    return v2.analyze(text)
+
+
+def _v2_normalized(corpus: Sequence[str], text: str) -> Dict[str, float]:
+    r = _v2_analysis(corpus, text)
     return {k: float(r.normalized_emotion_scores.get(k, 0.0)) for k in LABELS}
 
 
-def _argmax(d: Dict[str, float]) -> str:
+def _argmax_v1(d: Dict[str, float]) -> str:
     m = max(d.get(k, 0.0) for k in LABELS)
     if m <= 0.0:
         return "(no signal)"
@@ -81,6 +85,14 @@ def _argmax(d: Dict[str, float]) -> str:
     if len(runners) > 1:
         return f"{top} (tie)"
     return top
+
+
+def _v2_dominant_label(r) -> str:
+    if not r.dominant_emotions:
+        return "(no dominant)"
+    if len(r.dominant_emotions) == 1:
+        return r.dominant_emotions[0]
+    return f"{r.dominant_emotions[0]} (+{len(r.dominant_emotions) - 1} close)"
 
 
 def _l1(a: Dict[str, float], b: Dict[str, float]) -> float:
@@ -98,21 +110,32 @@ def _cosine(a: Dict[str, float], b: Dict[str, float]) -> float:
 def run_rows(
     corpus: Sequence[str] = CORPUS,
     texts: Sequence[str] = TEST_TEXTS,
-) -> List[Dict[str, object]]:
-    rows: List[Dict[str, object]] = []
+) -> List[Dict[str, Any]]:
+    rows: List[Dict[str, Any]] = []
     for text in texts:
         s1 = _v1_em_tfidf(corpus, text)
-        s2 = _v2_normalized(corpus, text)
+        r2 = _v2_analysis(corpus, text)
+        s2 = {k: float(r2.normalized_emotion_scores.get(k, 0.0)) for k in LABELS}
+        v1d, v2d = _argmax_v1(s1), _v2_dominant_label(r2)
         rows.append(
             {
                 "text": text[:72] + ("…" if len(text) > 72 else ""),
-                "v1_dominant": _argmax(s1),
-                "v2_dominant": _argmax(s2),
-                "agree": _argmax(s1) == _argmax(s2),
+                "v1_dominant": v1d,
+                "v2_dominant": v2d,
                 "l1_dist": round(_l1(s1, s2), 4),
                 "cosine": round(_cosine(s1, s2), 4),
                 "v1_scores": s1,
                 "v2_scores": s2,
+                "v2_has_meaningful_signal": r2.has_meaningful_signal,
+                "v2_has_low_evidence": r2.has_low_evidence,
+                "v2_dominance_margin": round(r2.dominance_margin, 4),
+                "v2_top_terms_preview": [
+                    {"emotion": e, "terms": r2.top_terms_by_emotion.get(e, [])[:3]}
+                    for e in LABELS
+                    if r2.top_terms_by_emotion.get(e)
+                ][:4],
+                "v2_negation_hits": len(r2.negation_hits),
+                "v2_intensifier_hits": len(r2.intensifier_hits),
             }
         )
     return rows
@@ -122,20 +145,27 @@ def main() -> None:
     if not LEX_PATH.is_file():
         raise SystemExit(f"Missing lexicon at {LEX_PATH}")
     rows = run_rows()
-    agree = sum(1 for r in rows if r["agree"])
     print(f"Lexicon: {LEX_PATH}")
     print(f"Corpus: {len(CORPUS)} docs; {len(TEST_TEXTS)} test strings")
-    print(f"Dominant-label agreement: {agree}/{len(rows)}")
     print()
     print(
-        "Note: V1 get_emotfidf has no negation handling; V2 applies cue windows. "
-        "Scores use different formulas, so L1/cosine are indicative only."
+        "Note: V1 get_emotfidf has no negation handling; V2 uses cue windows, positive-mass "
+        "normalization, and no uniform fallback on empty input. L1/cosine are indicative only."
     )
     print()
     for r in rows:
         print(f"Text: {r['text']!r}")
-        print(f"  V1 dominant: {r['v1_dominant']:10}  V2 dominant: {r['v2_dominant']:10}  match={r['agree']}")
-        print(f"  L1(seven-way): {r['l1_dist']}   cosine: {r['cosine']}")
+        print(
+            f"  V1 dominant: {r['v1_dominant']:14}  V2: {r['v2_dominant']:14}  "
+            f"meaningful={r['v2_has_meaningful_signal']}  low_evidence={r['v2_has_low_evidence']}  "
+            f"margin={r['v2_dominance_margin']}"
+        )
+        print(
+            f"  neg_hits={r['v2_negation_hits']}  int_hits={r['v2_intensifier_hits']}  "
+            f"L1={r['l1_dist']}  cosine={r['cosine']}"
+        )
+        if r["v2_top_terms_preview"]:
+            print(f"  V2 top terms (sample): {json.dumps(r['v2_top_terms_preview'], indent=None)[:200]}…")
     print()
     print("Full vectors (JSON) for last row:")
     print(json.dumps({"v1": rows[-1]["v1_scores"], "v2": rows[-1]["v2_scores"]}, indent=2))

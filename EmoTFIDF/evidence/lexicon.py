@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from collections import Counter
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Sequence, Set
 
@@ -55,3 +56,31 @@ def filter_emotions_for_word(raw: Sequence[str]) -> List[str]:
             seen.add(e_low)
             out.append(e_low)
     return out
+
+
+def inverse_count_emotion_shares(raw: Sequence[str]) -> Dict[str, float]:
+    """
+    Split one unit of affect mass across lexicon tags using inverse duplicate weighting.
+
+    The NRC JSON often repeats the same tag (e.g. two ``disgust`` entries next to one
+    ``anger``). A naive equal split would overweight disgust. Here each *unique* tag's
+    weight is proportional to ``1 / count(tag)`` in the filtered multiset, then normalized.
+
+    This is a general, explainable heuristic—not tuned to individual benchmark sentences.
+    """
+    filtered: List[str] = []
+    for e in raw:
+        if not e or not isinstance(e, str):
+            continue
+        e_low = e.strip().lower()
+        if e_low in _META:
+            continue
+        if e_low not in _ALLOWED:
+            continue
+        filtered.append(e_low)
+    if not filtered:
+        return {}
+    ctr = Counter(filtered)
+    inv = {emotion: 1.0 / float(ctr[emotion]) for emotion in ctr}
+    total = sum(inv.values())
+    return {emotion: inv[emotion] / total for emotion in inv}

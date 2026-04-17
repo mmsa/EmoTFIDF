@@ -13,16 +13,29 @@ def emotion_dict_zeros(labels: List[str]) -> Dict[str, float]:
     return {e: 0.0 for e in labels}
 
 
-def normalize_shifted_l1(raw: Dict[str, float], labels: List[str]) -> Dict[str, float]:
-    """Shift so the minimum is zero, then L1-normalize to a probability-like vector."""
-    vals = [raw.get(e, 0.0) for e in labels]
-    m = min(vals) if vals else 0.0
-    shifted = [max(0.0, raw.get(e, 0.0) - m) for e in labels]
-    s = sum(shifted)
+def relu_scores(raw: Dict[str, float], labels: List[str]) -> Dict[str, float]:
+    """Positive parts only (used so negated dimensions do not leak mass via min-shift tricks)."""
+    return {e: max(0.0, float(raw.get(e, 0.0))) for e in labels}
+
+
+def normalize_positive_l1(raw: Dict[str, float], labels: List[str]) -> Dict[str, float]:
+    """
+    L1-normalize max(0, raw[e]) across labels.
+
+    If there is **no positive mass**, return all zeros (no fake uniform distribution).
+    This replaces older min-shift+L1 logic that could assign mass to unrelated emotions
+    when one emotion was strongly negative (e.g. negated joy).
+    """
+    pos = [max(0.0, float(raw.get(e, 0.0))) for e in labels]
+    s = sum(pos)
     if s <= 0.0:
-        u = 1.0 / len(labels)
-        return {e: u for e in labels}
-    return {e: shifted[i] / s for i, e in enumerate(labels)}
+        return {e: 0.0 for e in labels}
+    return {e: pos[i] / s for i, e in enumerate(labels)}
+
+
+def normalize_shifted_l1(raw: Dict[str, float], labels: List[str]) -> Dict[str, float]:
+    """Deprecated for emotion display; prefer :func:`normalize_positive_l1`. Kept for tests if needed."""
+    return normalize_positive_l1(raw, labels)
 
 
 def softmax(raw: Dict[str, float], labels: List[str], temperature: float = 1.0) -> Dict[str, float]:
@@ -35,6 +48,21 @@ def softmax(raw: Dict[str, float], labels: List[str], temperature: float = 1.0) 
     return {e: exps[i] / s for i, e in enumerate(labels)}
 
 
+def softmax_positive_or_zeros(
+    raw: Dict[str, float], labels: List[str], temperature: float = 1.0
+) -> Dict[str, float]:
+    """
+    Softmax on ReLU(raw). If there is no positive mass, return zeros (not a uniform).
+
+    Uniform softmax on all-zero input was a source of fake balanced ``emotions`` on
+    punctuation-only text in earlier builds.
+    """
+    pos = relu_scores(raw, labels)
+    if sum(pos.values()) <= 0.0:
+        return {e: 0.0 for e in labels}
+    return softmax(pos, labels, temperature)
+
+
 def distribution_entropy(p: Dict[str, float], labels: List[str]) -> float:
     """Shannon entropy of the label distribution (natural log)."""
     h = 0.0
@@ -43,6 +71,37 @@ def distribution_entropy(p: Dict[str, float], labels: List[str]) -> float:
         if x > 0.0:
             h -= x * math.log(x + 1e-12)
     return h
+
+
+def select_dominant_emotions(
+    norm_positive: Dict[str, float],
+    raw: Dict[str, float],
+    labels: List[str],
+    *,
+    has_meaningful_signal: bool,
+    single_dominant_margin: float = 0.06,
+) -> Tuple[List[str], float, float, float]:
+    """
+    Choose dominant label(s) from positive-mass-normalized scores only.
+
+    Returns (dominant_list, top1_score, top2_score, margin top1-top2).
+    When *has_meaningful_signal* is False or all normalized scores are zero, returns ([], 0, 0, 0).
+    Tie-break equal scores with label name for determinism (``anger`` before ``disgust``).
+    """
+    if not has_meaningful_signal or sum(norm_positive.get(e, 0.0) for e in labels) <= 0.0:
+        return [], 0.0, 0.0, 0.0
+    ranked = sorted(
+        labels,
+        key=lambda e: (-norm_positive.get(e, 0.0), -max(0.0, float(raw.get(e, 0.0))), e),
+    )
+    top1, top2 = ranked[0], ranked[1]
+    s1 = float(norm_positive[top1])
+    s2 = float(norm_positive[top2])
+    margin = s1 - s2
+    if margin >= single_dominant_margin:
+        return [top1], s1, s2, margin
+    topk = [e for e in ranked if norm_positive.get(e, 0.0) > 0.0][:3]
+    return topk, s1, s2, margin
 
 
 def dominant_margin(norm: Dict[str, float], labels: List[str]) -> float:
@@ -86,13 +145,17 @@ def build_feature_vector(
     entropy: float,
     margin: float,
     labels: List[str],
+    *,
+    meaningful_signal_01: float,
+    total_positive_evidence: float,
+    total_abs_evidence: float,
 ) -> Tuple[List[float], List[str]]:
     """
     Flatten a deterministic feature vector (order documented in ``feature_names``).
 
     Layout:
         [0:7)   raw emotion scores (label order)
-        [7:14)  softmax-normalized emotion scores
+        [7:14)  softmax on positive mass (zeros when no positive evidence)
         [14)    coverage_ratio
         [15)    matched_lexicon_term_count (float)
         [16)    unmatched_token_ratio
@@ -100,8 +163,11 @@ def build_feature_vector(
         [24:31) per-emotion top-3 positive term sum
         [31)    negation cue count (float)
         [32)    intensifier / downtoner cue count (float)
-        [33)    entropy of softmax distribution
-        [34)    dominant margin (top1 - top2 softmax)
+        [33)    entropy of softmax distribution (0 when no positive mass)
+        [34)    dominant margin (top1 - top2 on positive-mass softmax; 0 if no mass)
+        [35)    meaningful_signal (0/1)
+        [36)    total_positive_evidence (sum ReLU raw)
+        [37)    total_abs_evidence (sum |raw|)
     """
     names: List[str] = []
     vec: List[float] = []
@@ -134,6 +200,20 @@ def build_feature_vector(
         ]
     )
     vec.extend([float(negation_count), float(intensifier_count), float(entropy), float(margin)])
+    names.extend(
+        [
+            "meaningful_signal_01",
+            "total_positive_evidence",
+            "total_abs_evidence",
+        ]
+    )
+    vec.extend(
+        [
+            float(meaningful_signal_01),
+            float(total_positive_evidence),
+            float(total_abs_evidence),
+        ]
+    )
     return vec, names
 
 

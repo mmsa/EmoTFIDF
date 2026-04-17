@@ -14,7 +14,7 @@
   - `fit(corpus_texts)` — fit `TfidfVectorizer` on V1-style preprocessed documents.
   - `analyze(text)` → `AnalysisResult` (dataclass with `to_dict()`).
   - `analyze_batch(texts)` → list of dicts.
-  - `get_feature_vector(text)` → `(vector, names)` (35 floats; see `feature_names` on analysis).
+  - `get_feature_vector(text)` → `(vector, names)` (38 floats; see `feature_names` on analysis).
   - `explain(text)` → explanation bundle dict.
   - `verify_label(text, predicted_label)` → verifier dict.
   - `to_prompt_features(text)` → compact JSON-friendly dict.
@@ -23,8 +23,11 @@
 
 ## Behavior notes (transparent heuristics)
 
-- **Negation**: fixed cue list; if a cue appears within `negation_window` tokens *before* an affect-bearing lexicon hit, emotion mass for that token is multiplied by `negation_factor` (default **-0.55**, partial inversion). Not full dependency parsing.
-- **Intensifiers / downtoners**: closest cue within `intensifier_window` before the affect token applies a multiplier (**×1.35** up, **×0.72** down). Tokens that are both negation and downtoner candidates are modeled as **negation** in `rules.py` (e.g. `barely`, `hardly` are negation cues, not downtoners).
+- **Negation**: fixed cue list; if a cue appears within `negation_window` tokens *before* an affect-bearing lexicon hit, emotion mass for that token is multiplied by `negation_factor` (default **-0.55**, partial inversion). Suppressed **joy** mass is partially attributed to **sadness** via `NEGATION_SUPPRESSED_JOY_TO_SADNESS_FRACTION` in `rules.py` (transparent valence sink—not mapped to anger). Not full dependency parsing.
+- **Positive-mass normalization**: scores are **L1-normalized on ReLU(raw)** only; all-zero when there is no positive evidence (no uniform pseudo-distribution on punctuation-only input).
+- **Intensifier tokens as cues only**: tokens in `INTENSIFIERS_UP` / `INTENSIFIERS_DOWN` / `NEGATION_CUES` do **not** emit lexicon emotions (so e.g. *extremely* does not inject spurious joy from the NRC entry).
+- **Lexicon duplicate tags**: per-token mass is split with **inverse duplicate count** weighting (`inverse_count_emotion_shares`) so repeated disgust tags do not drown a single anger tag.
+- **Intensifiers / downtoners (neighbors)**: closest cue within `intensifier_window` before the affect token applies a multiplier (**×1.35** up, **×0.72** down). Tokens that are both negation and downtoner candidates are modeled as **negation** in `rules.py` (e.g. `barely`, `hardly` are negation cues, not downtoners).
 - **Verifier**: combines normalized label share with raw lexical mass; levels are **strong / moderate / weak / unsupported**. This is **evidence-only**, not a correctness oracle.
 
 ## What to benchmark next (not implemented here)

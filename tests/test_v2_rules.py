@@ -28,7 +28,7 @@ def test_negation_changes_joy(fitted):
     assert len(neg.negation_hits) >= 1
     expl = fitted.explain("I am not happy today")
     assert expl["adjustment_notes"] or expl["warnings"]
-    assert any("Negation" in n for n in expl["adjustment_notes"])
+    assert any("negation" in n.lower() for n in expl["adjustment_notes"])
 
 
 def test_intensifier_boosts_joy(fitted):

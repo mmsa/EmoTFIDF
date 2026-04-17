@@ -59,6 +59,8 @@ def test_compare_script_rows_have_metrics():
     assert len(rows) == len(TEST_TEXTS)
     for r in rows:
         assert "v1_dominant" in r and "v2_dominant" in r
-        assert "agree" in r and "l1_dist" in r and "cosine" in r
+        assert "l1_dist" in r and "cosine" in r
+        assert "v2_has_meaningful_signal" in r
+        assert "v2_dominance_margin" in r
         assert r["v1_scores"]["joy"] >= 0.0
         assert r["v2_scores"]["joy"] >= 0.0

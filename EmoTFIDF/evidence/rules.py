@@ -38,6 +38,11 @@ INTENSIFIERS_DOWN: FrozenSet[str] = frozenset(
     {"slightly", "somewhat", "little", "marginally", "comparatively"}
 )
 
+# When negation yields negative joy mass, attribute part of that withheld positive affect
+# to sadness (negative valence) instead of re-normalizing unrelated labels to look active.
+# This is explicit and conservative—no mapping to anger unless the lexicon supplies anger.
+NEGATION_SUPPRESSED_JOY_TO_SADNESS_FRACTION: float = 0.38
+
 
 def find_negation_in_window(
     tokens: List[str],

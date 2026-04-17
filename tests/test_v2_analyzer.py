@@ -43,10 +43,18 @@ def test_fit_analyze_keys(analyzer):
         "support_summary",
         "feature_vector",
         "feature_names",
+        "total_evidence",
+        "total_positive_evidence",
+        "top1_score",
+        "top2_score",
+        "dominance_margin",
+        "has_meaningful_signal",
+        "has_low_evidence",
     }
     assert expected_keys <= set(d.keys())
     assert len(r.feature_vector) == len(r.feature_names)
-    assert len(r.feature_vector) == 35
+    assert len(r.feature_vector) == 38
+    assert "has_meaningful_signal" in r.to_dict()
 
 
 def test_dominant_emotion_stable(analyzer):
@@ -72,4 +80,4 @@ def test_punctuation_short_text(analyzer):
 
 def test_get_feature_vector(analyzer):
     vec, names = analyzer.get_feature_vector("happy joyful day")
-    assert len(vec) == len(names) == 35
+    assert len(vec) == len(names) == 38

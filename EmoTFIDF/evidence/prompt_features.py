@@ -25,7 +25,12 @@ def _weighted_terms(analysis: AnalysisResult, limit: int = 12) -> List[Dict[str,
 
 
 def _nl_summary(analysis: AnalysisResult) -> str:
-    dom = ", ".join(analysis.dominant_emotions[:2])
+    if not analysis.has_meaningful_signal or analysis.has_low_evidence:
+        return (
+            f"No reliable emotional evidence (has_meaningful_signal={analysis.has_meaningful_signal}, "
+            f"has_low_evidence={analysis.has_low_evidence}). {analysis.support_summary}"
+        )
+    dom = ", ".join(analysis.dominant_emotions[:2]) if analysis.dominant_emotions else "none"
     neg = "negation present" if analysis.negation_hits else "no negation cues"
     ints = (
         "intensifier/downtoner present"
@@ -47,6 +52,11 @@ def build_prompt_features(analysis: AnalysisResult) -> Dict[str, Any]:
     """
     return {
         "dominant_emotions": list(analysis.dominant_emotions),
+        "has_meaningful_signal": analysis.has_meaningful_signal,
+        "has_low_evidence": analysis.has_low_evidence,
+        "total_evidence": analysis.total_evidence,
+        "total_positive_evidence": analysis.total_positive_evidence,
+        "dominance_margin": analysis.dominance_margin,
         "normalized_emotion_scores": dict(
             sorted(analysis.normalized_emotion_scores.items())
         ),

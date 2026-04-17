@@ -87,6 +87,14 @@ class AnalysisResult:
     support_summary: str
     feature_vector: List[float]
     feature_names: List[str]
+    # Evidence calibration (positive-mass normalization; no fake uniform on empty input).
+    total_evidence: float
+    total_positive_evidence: float
+    top1_score: float
+    top2_score: float
+    dominance_margin: float
+    has_meaningful_signal: bool
+    has_low_evidence: bool
 
     def to_dict(self) -> Dict[str, Any]:
         """JSON-friendly nested dict (lists of primitives and dicts)."""
@@ -116,6 +124,13 @@ class AnalysisResult:
             "support_summary": self.support_summary,
             "feature_vector": list(self.feature_vector),
             "feature_names": list(self.feature_names),
+            "total_evidence": float(self.total_evidence),
+            "total_positive_evidence": float(self.total_positive_evidence),
+            "top1_score": float(self.top1_score),
+            "top2_score": float(self.top2_score),
+            "dominance_margin": float(self.dominance_margin),
+            "has_meaningful_signal": bool(self.has_meaningful_signal),
+            "has_low_evidence": bool(self.has_low_evidence),
         }
 
 
@@ -129,6 +144,8 @@ class ExplanationBundle:
     confidence_commentary: str
     warnings: List[str]
     raw_support_summary: str
+    no_signal_detected: bool
+    has_low_evidence: bool
 
     def to_dict(self) -> Dict[str, Any]:
         return asdict(self)

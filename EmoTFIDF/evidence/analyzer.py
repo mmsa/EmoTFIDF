@@ -7,14 +7,25 @@ from typing import Any, Dict, List, Optional, Sequence, Tuple
 from nltk.corpus import stopwords
 from sklearn.feature_extraction.text import TfidfVectorizer
 
-from EmoTFIDF.evidence.lexicon import DEFAULT_EMOTION_LABELS, filter_emotions_for_word, load_lexicon
+from EmoTFIDF.evidence.lexicon import (
+    DEFAULT_EMOTION_LABELS,
+    inverse_count_emotion_shares,
+    load_lexicon,
+)
 from EmoTFIDF.evidence.preprocessing import (
     content_tokens_for_coverage,
     process_message_for_tfidf,
     strip_edges,
     tokenize_raw_sequence,
 )
-from EmoTFIDF.evidence.rules import find_negation_in_window, intensifier_multiplier_in_window
+from EmoTFIDF.evidence.rules import (
+    INTENSIFIERS_DOWN,
+    INTENSIFIERS_UP,
+    NEGATION_CUES,
+    NEGATION_SUPPRESSED_JOY_TO_SADNESS_FRACTION,
+    find_negation_in_window,
+    intensifier_multiplier_in_window,
+)
 from EmoTFIDF.evidence.schemas import (
     AnalysisResult,
     Coverage,
@@ -27,9 +38,10 @@ from EmoTFIDF.evidence.weighting import (
     distribution_entropy,
     dominant_margin,
     emotion_dict_zeros,
-    normalize_shifted_l1,
+    normalize_positive_l1,
     per_emotion_max_and_topk,
-    softmax,
+    select_dominant_emotions,
+    softmax_positive_or_zeros,
     top_terms_by_emotion_from_contribs,
 )
 
@@ -134,10 +146,15 @@ class EmoTFIDFv2:
         raw_scores = emotion_dict_zeros(self.labels)
 
         for i, tok in enumerate(raw_tokens):
+            # Intensifier / downtoner tokens are cue-only (e.g. "extremely" wrongly tags joy in NRC).
+            if tok in INTENSIFIERS_UP or tok in INTENSIFIERS_DOWN or tok in NEGATION_CUES:
+                continue
             if tok not in self._lexicon:
                 continue
-            emotions = filter_emotions_for_word(self._lexicon[tok])
-            if not emotions:
+            # Inverse duplicate-count shares so repeated lexicon tags (e.g. two disgust)
+            # do not drown a single anger tag—general fix for multi-label NRC entries.
+            emotion_shares = inverse_count_emotion_shares(self._lexicon[tok])
+            if not emotion_shares:
                 continue
 
             base = float(weights.get(tok, self._fallback_tfidf_weight))
@@ -148,12 +165,16 @@ class EmoTFIDFv2:
                 raw_tokens, i, self.intensifier_window
             )
 
+            # Negation scales the whole affect token mass (same cue for all emotions on token).
             emotional_mult = self.negation_factor if negated else 1.0
-            share = base * imult * emotional_mult / max(1, len(emotions))
+            mass = base * imult * emotional_mult
             per_e: Dict[str, float] = emotion_dict_zeros(self.labels)
-            for e in emotions:
-                per_e[e] = share
-                raw_scores[e] = raw_scores.get(e, 0.0) + share
+            for e, w_share in emotion_shares.items():
+                contrib = mass * float(w_share)
+                per_e[e] = contrib
+                raw_scores[e] = raw_scores.get(e, 0.0) + contrib
+
+            emotions = sorted(emotion_shares.keys())
 
             if neg_pair:
                 negation_hits.append(
@@ -162,7 +183,7 @@ class EmoTFIDFv2:
                         cue_position=neg_pair[1],
                         target_token=tok,
                         target_position=i,
-                        emotions_affected=list(sorted(set(emotions))),
+                        emotions_affected=list(emotions),
                     )
                 )
             if icue and idir and icue_pos >= 0 and abs(imult - 1.0) > 1e-9:
@@ -181,7 +202,7 @@ class EmoTFIDFv2:
                 TermContribution(
                     token=tok,
                     position=i,
-                    emotions=list(sorted(set(emotions))),
+                    emotions=list(emotions),
                     base_weight=round(base, 6),
                     intensifier_multiplier=round(imult, 6),
                     negated=negated,
@@ -193,6 +214,9 @@ class EmoTFIDFv2:
             if tok not in matched_set:
                 matched_set.add(tok)
                 matched_in_order.append(tok)
+
+        # Transparent valence sink: suppressed joy from negation is not re-mapped to anger.
+        _apply_negation_joy_to_sadness_sink(raw_scores)
 
         unmatched = [t for t in proc_tokens if t not in matched_set]
         matched_count = len(matched_set)
@@ -207,20 +231,36 @@ class EmoTFIDFv2:
             unmatched_terms=sorted(set(unmatched))[:80],
         )
 
-        norm_l1 = normalize_shifted_l1(raw_scores, self.labels)
-        norm_sm = softmax(raw_scores, self.labels)
+        mass_abs = sum(abs(raw_scores[e]) for e in self.labels)
+        mass_pos = sum(max(0.0, raw_scores[e]) for e in self.labels)
+        # Meaningful = lexicon-aligned affect activity (even if net polarity is negative pre-sink).
+        has_meaningful_signal = len(term_contributions) > 0 and mass_abs > 1e-12
+        # Low evidence when nothing matched or no positive mass to summarize as a distribution.
+        has_low_evidence = len(term_contributions) == 0 or mass_pos <= 1e-12
+
+        norm_pos = normalize_positive_l1(raw_scores, self.labels)
+        norm_sm = softmax_positive_or_zeros(raw_scores, self.labels)
         top_terms = top_terms_by_emotion_from_contribs(term_contributions, self.labels, top_k=5)
         maxv, topk = per_emotion_max_and_topk(term_contributions, self.labels, k=3)
         ent = distribution_entropy(norm_sm, self.labels)
-        margin = dominant_margin(norm_sm, self.labels)
+        sm_margin = dominant_margin(norm_sm, self.labels)
 
-        ranked = sorted(((norm_l1[e], e) for e in self.labels), reverse=True)
-        dominant = [e for score, e in ranked[:3] if score > 0.0]
-        if not dominant:
-            dominant = [ranked[0][1]]
+        can_dominant = has_meaningful_signal and mass_pos > 1e-12
+        dominant, top1s, top2s, pos_margin = select_dominant_emotions(
+            norm_pos,
+            raw_scores,
+            self.labels,
+            has_meaningful_signal=can_dominant,
+            single_dominant_margin=0.06,
+        )
 
         support_summary = _build_support_summary(
-            dominant, coverage_ratio, negation_hits, intensifier_hits
+            dominant,
+            coverage_ratio,
+            negation_hits,
+            intensifier_hits,
+            has_meaningful_signal,
+            has_low_evidence,
         )
 
         feat_vec, feat_names = build_feature_vector(
@@ -234,12 +274,15 @@ class EmoTFIDFv2:
             len(negation_hits),
             len(intensifier_hits),
             ent,
-            margin,
+            sm_margin,
             self.labels,
+            meaningful_signal_01=1.0 if has_meaningful_signal else 0.0,
+            total_positive_evidence=mass_pos,
+            total_abs_evidence=mass_abs,
         )
 
         raw_rounded = {e: round(raw_scores[e], 8) for e in self.labels}
-        norm_rounded = {e: round(norm_l1[e], 8) for e in self.labels}
+        norm_rounded = {e: round(norm_pos[e], 8) for e in self.labels}
 
         return AnalysisResult(
             raw_emotion_scores=raw_rounded,
@@ -255,6 +298,13 @@ class EmoTFIDFv2:
             support_summary=support_summary,
             feature_vector=[round(float(x), 8) for x in feat_vec],
             feature_names=feat_names,
+            total_evidence=round(mass_abs, 8),
+            total_positive_evidence=round(mass_pos, 8),
+            top1_score=round(top1s, 8),
+            top2_score=round(top2s, 8),
+            dominance_margin=round(pos_margin, 8),
+            has_meaningful_signal=has_meaningful_signal,
+            has_low_evidence=has_low_evidence,
         )
 
     def analyze_batch(self, texts: Sequence[str]) -> List[Dict[str, Any]]:
@@ -285,12 +335,32 @@ class EmoTFIDFv2:
         return build_prompt_features(self.analyze(text))
 
 
+def _apply_negation_joy_to_sadness_sink(raw_scores: Dict[str, float]) -> None:
+    """
+    If negation drove *joy* negative, move part of that magnitude into *sadness* (explicit rule).
+
+    Without this, positive-mass normalization would show all-zero emotions even when the
+    reader should see a conservative negative-valence hint—not unrelated anger from min-shift.
+    """
+    joy = raw_scores.get("joy", 0.0)
+    if joy < 0.0:
+        raw_scores["sadness"] = raw_scores.get("sadness", 0.0) + NEGATION_SUPPRESSED_JOY_TO_SADNESS_FRACTION * abs(
+            joy
+        )
+
+
 def _build_support_summary(
     dominant: List[str],
     coverage_ratio: float,
     neg_hits: List[NegationHit],
     int_hits: List[IntensifierHit],
+    has_meaningful_signal: bool,
+    has_low_evidence: bool,
 ) -> str:
+    if not has_meaningful_signal or has_low_evidence:
+        if not has_meaningful_signal:
+            return "No emotional evidence detected from lexicon or phrase rules."
+        return "Lexicon hits present but no positive affect mass to summarize (treat as low evidence)."
     dom = ", ".join(dominant[:2]) if dominant else "none"
     strength = (
         "strong"

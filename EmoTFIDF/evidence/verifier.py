@@ -27,6 +27,7 @@ def verify_label(analysis: AnalysisResult, predicted_label: str) -> Verification
     """
     label = predicted_label.strip().lower()
     notes: List[str] = []
+
     if label not in DEFAULT_EMOTION_LABELS:
         notes.append(
             f"Unknown label '{predicted_label}'; expected one of {DEFAULT_EMOTION_LABELS}."
@@ -39,6 +40,17 @@ def verify_label(analysis: AnalysisResult, predicted_label: str) -> Verification
             conflicting_emotions=list(
                 e for e in analysis.dominant_emotions if e != label
             )[:3],
+            notes=notes,
+        )
+
+    if not analysis.has_meaningful_signal or analysis.has_low_evidence:
+        notes.append("No reliable lexical emotional evidence; verifier scores are not meaningful.")
+        return VerificationResult(
+            predicted_label=label,
+            support_score=0.0,
+            support_level="unsupported",
+            supporting_terms=[],
+            conflicting_emotions=[],
             notes=notes,
         )
 

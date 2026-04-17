@@ -6,4 +6,10 @@ pytest
 flake8
 matplotlib
 seaborn
-
+# datasets 3.x is unreliable on Python 3.8 and can raise schema errors on cached go_emotions.
+datasets>=2.14.0,<3.0.0
+transformers>=4.36.0
+torch
+accelerate
+nrclex
+joblib

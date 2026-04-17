@@ -27,6 +27,15 @@ from transformers import (
 MODEL_NAME = "distilbert-base-uncased"
 
 
+def _inference_device() -> torch.device:
+    if torch.cuda.is_available():
+        return torch.device("cuda")
+    mps = getattr(torch.backends, "mps", None)
+    if mps is not None and mps.is_available():
+        return torch.device("mps")
+    return torch.device("cpu")
+
+
 @dataclass
 class TransformerTrainConfig:
     """Training knobs for DistilBERT fine-tuning."""
@@ -161,7 +170,7 @@ def load_distilbert(model_dir: str) -> Tuple[Any, Any]:
 def predict_distilbert(
     texts: List[str],
     model_dir: str,
-    batch_size: int = 32,
+    batch_size: int = 64,
     max_length: int = 128,
 ) -> Tuple[np.ndarray, np.ndarray]:
     """
@@ -172,12 +181,25 @@ def predict_distilbert(
         - ``probs`` float array ``(n, num_labels)``
     """
     tokenizer, model = load_distilbert(model_dir)
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    device = _inference_device()
     model.to(device)
     model.eval()
+    n = len(texts)
+    n_batch = (n + batch_size - 1) // batch_size
+    if n >= 800:
+        print(
+            f"  DistilBERT inference: {n} texts, {n_batch} batches, device={device.type}",
+            flush=True,
+        )
     preds: List[int] = []
     prob_chunks: List[np.ndarray] = []
-    for i in range(0, len(texts), batch_size):
+    log_every = max(1, n_batch // 10)
+    for bi, i in enumerate(range(0, n, batch_size)):
+        if n >= 800 and bi > 0 and bi % log_every == 0:
+            print(
+                f"    … batches {bi}/{n_batch} (~{100 * bi // n_batch}%)",
+                flush=True,
+            )
         batch = texts[i : i + batch_size]
         enc = tokenizer(
             batch,

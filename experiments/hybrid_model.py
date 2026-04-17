@@ -21,16 +21,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 
-from transformer_model import load_distilbert
-
-
-def _inference_device() -> torch.device:
-    if torch.cuda.is_available():
-        return torch.device("cuda")
-    mps = getattr(torch.backends, "mps", None)
-    if mps is not None and mps.is_available():
-        return torch.device("mps")
-    return torch.device("cpu")
+from transformer_model import _inference_device, load_distilbert
 
 
 @torch.no_grad()

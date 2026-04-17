@@ -3,8 +3,9 @@
 from __future__ import annotations
 
 import math
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
+from EmoTFIDF.evidence.lexeme_prior import explanation_rank_multiplier
 from EmoTFIDF.evidence.lexicon import DEFAULT_EMOTION_LABELS
 from EmoTFIDF.evidence.schemas import TermContribution
 
@@ -117,8 +118,16 @@ def top_terms_by_emotion_from_contribs(
     contribs: List[TermContribution],
     labels: List[str],
     top_k: int = 5,
+    lexicon: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, List[Dict[str, Any]]]:
-    """Aggregate max positive contribution per (emotion, token)."""
+    """
+    Aggregate positive mass per (emotion, token).
+
+    When *lexicon* is provided, terms are **re-ranked** for explanation quality using
+    :func:`EmoTFIDF.evidence.lexeme_prior.explanation_rank_multiplier` so weak contextual
+    lexemes (e.g. *yesterday* tagged sadness in NRC) do not float above clearer affect words.
+    Reported ``weight`` remains the **actual summed positive contribution** (lexicon-grounded).
+    """
     acc: Dict[str, Dict[str, float]] = {e: {} for e in labels}
     for c in contribs:
         for e, v in c.per_emotion_contribution.items():
@@ -127,8 +136,21 @@ def top_terms_by_emotion_from_contribs(
             acc[e][c.token] = acc[e].get(c.token, 0.0) + max(0.0, v)
     out: Dict[str, List[Dict[str, Any]]] = {}
     for e in labels:
-        items = sorted(acc[e].items(), key=lambda kv: (-kv[1], kv[0]))[:top_k]
-        out[e] = [{"term": t, "weight": round(w, 6)} for t, w in items if w > 0.0]
+        items = list(acc[e].items())
+        if not items:
+            out[e] = []
+            continue
+        if lexicon is not None:
+            items.sort(
+                key=lambda kv: (
+                    -kv[1] * explanation_rank_multiplier(kv[0], lexicon),
+                    -kv[1],
+                    kv[0],
+                )
+            )
+        else:
+            items.sort(key=lambda kv: (-kv[1], kv[0]))
+        out[e] = [{"term": t, "weight": round(w, 6)} for t, w in items[:top_k] if w > 0.0]
     return out
 
 

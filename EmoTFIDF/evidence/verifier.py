@@ -52,6 +52,9 @@ def verify_label(analysis: AnalysisResult, predicted_label: str) -> Verification
             supporting_terms=[],
             conflicting_emotions=[],
             notes=notes,
+            dominance_margin=float(analysis.dominance_margin),
+            coverage_score=float(analysis.coverage.coverage_ratio),
+            evidence_term_count=0,
         )
 
     norm = analysis.normalized_emotion_scores
@@ -72,6 +75,12 @@ def verify_label(analysis: AnalysisResult, predicted_label: str) -> Verification
 
     support_score = round(0.65 * label_share + 0.35 * min(1.0, mass_norm), 6)
     level = _support_level(support_score)
+
+    evidence_term_count = sum(
+        1
+        for c in analysis.term_contributions
+        if sum(max(0.0, float(v)) for v in c.per_emotion_contribution.values()) > 1e-12
+    )
 
     ranked = sorted(((norm[e], e) for e in DEFAULT_EMOTION_LABELS), reverse=True)
     top_e = ranked[0][1]
@@ -97,4 +106,7 @@ def verify_label(analysis: AnalysisResult, predicted_label: str) -> Verification
         supporting_terms=supporting_terms[:10],
         conflicting_emotions=conflicting[:4],
         notes=notes,
+        dominance_margin=float(analysis.dominance_margin),
+        coverage_score=float(analysis.coverage.coverage_ratio),
+        evidence_term_count=int(evidence_term_count),
     )

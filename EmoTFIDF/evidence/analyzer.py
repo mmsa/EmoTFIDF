@@ -7,6 +7,10 @@ from typing import Any, Dict, List, Optional, Sequence, Tuple
 from nltk.corpus import stopwords
 from sklearn.feature_extraction.text import TfidfVectorizer
 
+from EmoTFIDF.evidence.lexeme_prior import (
+    contextual_affect_multiplier,
+    explanation_rank_multiplier,
+)
 from EmoTFIDF.evidence.lexicon import (
     DEFAULT_EMOTION_LABELS,
     inverse_count_emotion_shares,
@@ -167,7 +171,10 @@ class EmoTFIDFv2:
 
             # Negation scales the whole affect token mass (same cue for all emotions on token).
             emotional_mult = self.negation_factor if negated else 1.0
-            mass = base * imult * emotional_mult
+            # Downweight temporal/discourse tokens that NRC still tags with affect (see lexeme_prior).
+            ctx_pen = contextual_affect_multiplier(tok)
+            mass = base * imult * emotional_mult * ctx_pen
+            rank_hint = explanation_rank_multiplier(tok, self._lexicon)
             per_e: Dict[str, float] = emotion_dict_zeros(self.labels)
             for e, w_share in emotion_shares.items():
                 contrib = mass * float(w_share)
@@ -209,6 +216,7 @@ class EmoTFIDFv2:
                     negation_cue=neg_cue,
                     intensifier_cue=icue,
                     per_emotion_contribution={k: round(v, 8) for k, v in per_e.items() if v != 0.0},
+                    explanation_rank_hint=round(rank_hint, 6),
                 )
             )
             if tok not in matched_set:
@@ -240,7 +248,9 @@ class EmoTFIDFv2:
 
         norm_pos = normalize_positive_l1(raw_scores, self.labels)
         norm_sm = softmax_positive_or_zeros(raw_scores, self.labels)
-        top_terms = top_terms_by_emotion_from_contribs(term_contributions, self.labels, top_k=5)
+        top_terms = top_terms_by_emotion_from_contribs(
+            term_contributions, self.labels, top_k=5, lexicon=self._lexicon
+        )
         maxv, topk = per_emotion_max_and_topk(term_contributions, self.labels, k=3)
         ent = distribution_entropy(norm_sm, self.labels)
         sm_margin = dominant_margin(norm_sm, self.labels)

@@ -42,6 +42,8 @@ class TermContribution:
     negation_cue: Optional[str]
     intensifier_cue: Optional[str]
     per_emotion_contribution: Dict[str, float]
+    # Higher = more useful for human-facing explanations (see lexeme_prior).
+    explanation_rank_hint: float = 1.0
 
 
 @dataclass
@@ -65,6 +67,9 @@ class VerificationResult:
     supporting_terms: List[str]
     conflicting_emotions: List[str]
     notes: List[str]
+    dominance_margin: float = 0.0
+    coverage_score: float = 0.0
+    evidence_term_count: int = 0
 
     def to_dict(self) -> Dict[str, Any]:
         return asdict(self)

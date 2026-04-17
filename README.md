@@ -49,6 +49,10 @@ You can also import the class from the package root: `from EmoTFIDF import EmoTF
 
 From the repository root, run `python experiments/compare_v1_v2.py` to print side-by-side dominant labels, L1 distance on the seven emotion scores, and cosine similarity (scores use different formulas, so metrics are indicative). Pytest coverage: `pytest tests/test_v1_v2_compare.py`.
 
+### Curated regression benchmark (pre–full benchmark)
+
+Run `python experiments/benchmark_v1_v2_regression.py` for a small JSON report on dominant agreement, abstention, negation, explanation token previews, and verifier calibration fields. This is a **regression gate** only—not a paper-scale benchmark. Pytest: `pytest tests/test_benchmark_regression_smoke.py`.
+
 #List of emotions
 
 -fear

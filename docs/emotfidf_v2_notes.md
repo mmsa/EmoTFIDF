@@ -27,6 +27,7 @@
 - **Positive-mass normalization**: scores are **L1-normalized on ReLU(raw)** only; all-zero when there is no positive evidence (no uniform pseudo-distribution on punctuation-only input).
 - **Intensifier tokens as cues only**: tokens in `INTENSIFIERS_UP` / `INTENSIFIERS_DOWN` / `NEGATION_CUES` do **not** emit lexicon emotions (so e.g. *extremely* does not inject spurious joy from the NRC entry).
 - **Lexicon duplicate tags**: per-token mass is split with **inverse duplicate count** weighting (`inverse_count_emotion_shares`) so repeated disgust tags do not drown a single anger tag.
+- **Weak contextual lexemes** (`lexeme_prior.py`): temporal/deictic words that NRC still tags (e.g. *yesterday* → sadness) get a **lower affect multiplier** on scored mass and are **de-prioritized** in explanation ordering so clearer affect terms surface first.
 - **Intensifiers / downtoners (neighbors)**: closest cue within `intensifier_window` before the affect token applies a multiplier (**×1.35** up, **×0.72** down). Tokens that are both negation and downtoner candidates are modeled as **negation** in `rules.py` (e.g. `barely`, `hardly` are negation cues, not downtoners).
 - **Verifier**: combines normalized label share with raw lexical mass; levels are **strong / moderate / weak / unsupported**. This is **evidence-only**, not a correctness oracle.
 

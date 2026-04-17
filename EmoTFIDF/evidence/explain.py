@@ -4,8 +4,55 @@ from __future__ import annotations
 
 from typing import Any, Dict, List
 
+from EmoTFIDF.evidence.lexeme_prior import is_weak_contextual_lexeme
 from EmoTFIDF.evidence.lexicon import DEFAULT_EMOTION_LABELS
 from EmoTFIDF.evidence.schemas import AnalysisResult, ExplanationBundle
+
+
+def _contribution_mass(c) -> float:
+    return sum(max(0.0, float(v)) for v in c.per_emotion_contribution.values())
+
+
+def _select_top_contributing_words(analysis: AnalysisResult, limit: int = 12) -> List[Dict[str, Any]]:
+    """
+    Prefer lexicon-grounded affect tokens with strong positive mass and good rank hints.
+
+    Weak contextual lexemes (temporal/deictic NRC tags) are omitted whenever any stronger
+    contributor exists so explanations are not filler-dominated.
+    """
+    if not analysis.term_contributions:
+        return []
+
+    ranked = sorted(
+        analysis.term_contributions,
+        key=lambda c: (-_contribution_mass(c) * c.explanation_rank_hint, c.token),
+    )
+    non_weak = [c for c in ranked if not is_weak_contextual_lexeme(c.token)]
+    pool = non_weak if non_weak else ranked
+
+    out: List[Dict[str, Any]] = []
+    seen: set = set()
+    for c in pool:
+        if _contribution_mass(c) <= 1e-12:
+            continue
+        key = (c.token, tuple(sorted(c.emotions)))
+        if key in seen:
+            continue
+        seen.add(key)
+        out.append(
+            {
+                "token": c.token,
+                "emotions": list(c.emotions),
+                "base_tfidf_mass": c.base_weight,
+                "intensifier_multiplier": c.intensifier_multiplier,
+                "negated": c.negated,
+                "explanation_rank_hint": c.explanation_rank_hint,
+                "positive_mass": round(_contribution_mass(c), 6),
+            }
+        )
+        if len(out) >= limit:
+            break
+    return out
 
 
 def build_explanation(analysis: AnalysisResult) -> ExplanationBundle:
@@ -17,23 +64,7 @@ def build_explanation(analysis: AnalysisResult) -> ExplanationBundle:
     no_signal = not analysis.has_meaningful_signal
     low_ev = analysis.has_low_evidence
 
-    top_words: List[Dict[str, Any]] = []
-    seen: set = set()
-    for c in analysis.term_contributions:
-        key = (c.token, tuple(sorted(c.emotions)))
-        if key in seen:
-            continue
-        seen.add(key)
-        top_words.append(
-            {
-                "token": c.token,
-                "emotions": list(c.emotions),
-                "base_tfidf_mass": c.base_weight,
-                "intensifier_multiplier": c.intensifier_multiplier,
-                "negated": c.negated,
-            }
-        )
-    top_words = top_words[:12]
+    top_words = _select_top_contributing_words(analysis, limit=12)
 
     adjustments: List[str] = []
     for n in analysis.negation_hits:

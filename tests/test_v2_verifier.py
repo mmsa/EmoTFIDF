@@ -27,6 +27,9 @@ def test_verify_structure(fitted):
         "supporting_terms",
         "conflicting_emotions",
         "notes",
+        "dominance_margin",
+        "coverage_score",
+        "evidence_term_count",
     }
     assert out["predicted_label"] == "joy"
     assert out["support_level"] in {"strong", "moderate", "weak", "unsupported"}

@@ -1,14 +1,16 @@
 # EmoTFIDF V2 — development notes
 
+**Import path:** use `EmoTFIDF.evidence` (the Python package was renamed from `EmoTFIDF.v2` so the module name matches the “evidence layer” role).
+
 ## What changed
 
-- Added a **parallel V2 API** under `EmoTFIDF.v2` that does not replace or rewrite the legacy `EmoTFIDF.EmoTFIDF.EmoTFIDF` class.
+- Added a **parallel V2 API** under `EmoTFIDF.evidence` that does not replace or rewrite the legacy `EmoTFIDF.EmoTFIDF.EmoTFIDF` class.
 - V2 focuses on an **interpretable emotional evidence layer**: structured outputs, per-term contributions, coverage, lightweight negation/intensifier windows, a richer deterministic feature vector, LLM-oriented prompt exports, and a lexical **verifier** for proposed labels.
 - The default lexicon path resolves to the **packaged** `EmoTFIDF/emotions_lex.json` (no network required for V2 tests).
 
 ## New public API
 
-- **`EmoTFIDF.v2.EmoTFIDFv2`**
+- **`EmoTFIDF.evidence.EmoTFIDFv2`**
   - `fit(corpus_texts)` — fit `TfidfVectorizer` on V1-style preprocessed documents.
   - `analyze(text)` → `AnalysisResult` (dataclass with `to_dict()`).
   - `analyze_batch(texts)` → list of dicts.
@@ -17,7 +19,7 @@
   - `verify_label(text, predicted_label)` → verifier dict.
   - `to_prompt_features(text)` → compact JSON-friendly dict.
 
-- **Module layout**: `EmoTFIDF/v2/` — `analyzer`, `preprocessing`, `lexicon`, `weighting`, `rules`, `explain`, `verifier`, `prompt_features`, `schemas`.
+- **Module layout**: `EmoTFIDF/evidence/` — `analyzer`, `preprocessing`, `lexicon`, `weighting`, `rules`, `explain`, `verifier`, `prompt_features`, `schemas`.
 
 ## Behavior notes (transparent heuristics)
 

@@ -5,8 +5,8 @@ from __future__ import annotations
 import math
 from typing import Any, Dict, List, Tuple
 
-from EmoTFIDF.v2.lexicon import DEFAULT_EMOTION_LABELS
-from EmoTFIDF.v2.schemas import TermContribution
+from EmoTFIDF.evidence.lexicon import DEFAULT_EMOTION_LABELS
+from EmoTFIDF.evidence.schemas import TermContribution
 
 
 def emotion_dict_zeros(labels: List[str]) -> Dict[str, float]:

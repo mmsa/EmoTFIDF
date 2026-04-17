@@ -7,22 +7,22 @@ from typing import Any, Dict, List, Optional, Sequence, Tuple
 from nltk.corpus import stopwords
 from sklearn.feature_extraction.text import TfidfVectorizer
 
-from EmoTFIDF.v2.lexicon import DEFAULT_EMOTION_LABELS, filter_emotions_for_word, load_lexicon
-from EmoTFIDF.v2.preprocessing import (
+from EmoTFIDF.evidence.lexicon import DEFAULT_EMOTION_LABELS, filter_emotions_for_word, load_lexicon
+from EmoTFIDF.evidence.preprocessing import (
     content_tokens_for_coverage,
     process_message_for_tfidf,
     strip_edges,
     tokenize_raw_sequence,
 )
-from EmoTFIDF.v2.rules import find_negation_in_window, intensifier_multiplier_in_window
-from EmoTFIDF.v2.schemas import (
+from EmoTFIDF.evidence.rules import find_negation_in_window, intensifier_multiplier_in_window
+from EmoTFIDF.evidence.schemas import (
     AnalysisResult,
     Coverage,
     IntensifierHit,
     NegationHit,
     TermContribution,
 )
-from EmoTFIDF.v2.weighting import (
+from EmoTFIDF.evidence.weighting import (
     build_feature_vector,
     distribution_entropy,
     dominant_margin,
@@ -267,20 +267,20 @@ class EmoTFIDFv2:
         return list(r.feature_vector), list(r.feature_names)
 
     def explain(self, text: str) -> Dict[str, Any]:
-        """Human-readable explanation bundle (see :mod:`EmoTFIDF.v2.explain`)."""
-        from EmoTFIDF.v2.explain import build_explanation
+        """Human-readable explanation bundle (see :mod:`EmoTFIDF.evidence.explain`)."""
+        from EmoTFIDF.evidence.explain import build_explanation
 
         return build_explanation(self.analyze(text)).to_dict()
 
     def verify_label(self, text: str, predicted_label: str) -> Dict[str, Any]:
-        """Lexical support check for a proposed label (see :mod:`EmoTFIDF.v2.verifier`)."""
-        from EmoTFIDF.v2.verifier import verify_label as verify
+        """Lexical support check for a proposed label (see :mod:`EmoTFIDF.evidence.verifier`)."""
+        from EmoTFIDF.evidence.verifier import verify_label as verify
 
         return verify(self.analyze(text), predicted_label).to_dict()
 
     def to_prompt_features(self, text: str) -> Dict[str, Any]:
-        """Compact prompt-side features (see :mod:`EmoTFIDF.v2.prompt_features`)."""
-        from EmoTFIDF.v2.prompt_features import build_prompt_features
+        """Compact prompt-side features (see :mod:`EmoTFIDF.evidence.prompt_features`)."""
+        from EmoTFIDF.evidence.prompt_features import build_prompt_features
 
         return build_prompt_features(self.analyze(text))
 

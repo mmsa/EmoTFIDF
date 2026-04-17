@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from typing import List
 
-from EmoTFIDF.v2.lexicon import DEFAULT_EMOTION_LABELS
-from EmoTFIDF.v2.schemas import AnalysisResult, VerificationResult
+from EmoTFIDF.evidence.lexicon import DEFAULT_EMOTION_LABELS
+from EmoTFIDF.evidence.schemas import AnalysisResult, VerificationResult
 
 
 def _support_level(score: float) -> str:

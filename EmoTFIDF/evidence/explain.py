@@ -1,11 +1,11 @@
-"""Human-readable explanations from a V2 :class:`~EmoTFIDF.v2.schemas.AnalysisResult`."""
+"""Human-readable explanations from a V2 :class:`~EmoTFIDF.evidence.schemas.AnalysisResult`."""
 
 from __future__ import annotations
 
 from typing import Any, Dict, List
 
-from EmoTFIDF.v2.lexicon import DEFAULT_EMOTION_LABELS
-from EmoTFIDF.v2.schemas import AnalysisResult, ExplanationBundle
+from EmoTFIDF.evidence.lexicon import DEFAULT_EMOTION_LABELS
+from EmoTFIDF.evidence.schemas import AnalysisResult, ExplanationBundle
 
 
 def build_explanation(analysis: AnalysisResult) -> ExplanationBundle:

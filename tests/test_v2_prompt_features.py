@@ -6,7 +6,7 @@ import json
 
 import pytest
 
-from EmoTFIDF.v2 import EmoTFIDFv2
+from EmoTFIDF.evidence import EmoTFIDFv2
 
 
 @pytest.fixture(scope="module")

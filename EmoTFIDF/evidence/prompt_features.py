@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any, Dict, List
 
-from EmoTFIDF.v2.schemas import AnalysisResult
+from EmoTFIDF.evidence.schemas import AnalysisResult
 
 
 def _weighted_terms(analysis: AnalysisResult, limit: int = 12) -> List[Dict[str, Any]]:

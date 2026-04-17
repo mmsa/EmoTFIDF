@@ -13,6 +13,36 @@ EmoTFIDF is an emotion detection library (Lexicon approach) based in the Nationa
 pip install EmoTFIDF
 ```
 
+## EmoTFIDF V2 (interpretable evidence layer)
+
+V2 is a **parallel API** for research and tooling: it is meant as an interpretable lexical + TF-IDF **evidence** and **feature** module (explanations, richer vectors, prompt exports, and a light verifier for a proposed emotion label). It does **not** try to replace transformer baselines; see `docs/emotfidf_v2_notes.md` for design notes and suggested benchmarks.
+
+**Negation** uses a fixed cue list and a short token window before each lexicon hit; contributions are scaled (and may flip sign) in a transparent, rule-based way. **Intensifiers / downtoners** apply simple multipliers in a short window before the affect token. **The verifier** surfaces lexical alignment only—it should not be read as semantic ground truth.
+
+### V2 quick example
+
+```python
+from EmoTFIDF.v2 import EmoTFIDFv2
+
+corpus = [
+    "I am happy today and everything feels great.",
+    "I am not happy today and everything feels wrong.",
+    "I feel sad and disappointed about the news.",
+]
+v2 = EmoTFIDFv2()
+v2.fit(corpus)
+
+text = "I am very happy today!"
+analysis = v2.analyze(text)
+print(analysis.dominant_emotions)
+print(analysis.to_dict()["negation_hits"])
+
+print(v2.verify_label(text, "joy"))
+print(v2.to_prompt_features(text))
+```
+
+You can also import the class from the package root: `from EmoTFIDF import EmoTFIDFv2`.
+
 #List of emotions
 
 -fear

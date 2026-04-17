@@ -45,6 +45,10 @@ print(engine.to_prompt_features(text))
 
 You can also import the class from the package root: `from EmoTFIDF import EmoTFIDFv2`.
 
+### Compare legacy V1 vs evidence API
+
+From the repository root, run `python experiments/compare_v1_v2.py` to print side-by-side dominant labels, L1 distance on the seven emotion scores, and cosine similarity (scores use different formulas, so metrics are indicative). Pytest coverage: `pytest tests/test_v1_v2_compare.py`.
+
 #List of emotions
 
 -fear

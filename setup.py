@@ -1,51 +1,55 @@
 #!/usr/bin/env python
-"""
-@author: mmsa12
-"""
+"""Setuptools metadata for EmoTFIDF (PyPI)."""
 
 import setuptools
-from setuptools.command.install import install as _install
 
-with open("README.md", "r") as fh:
+with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
-
-class Install(_install):
-    def run(self):
-        _install.do_egg_install(self)
-        import nltk
-        nltk.download('wordnet')
-        nltk.download('punkt')
-        nltk.download('stopwords')
 
 setuptools.setup(
     name="EmoTFIDF",
-    version="1.4.2",
+    version="2.0.0",
     author="mmsa12",
     author_email="mmsa12@gmail.com",
-    description="A library to extract emotions using three methods: 1- Lexicon based, counting frequency of emotion, "
-                "2- Integrating TFIDF to add context, and 3- Hybrid transformer-TFIDF approach. "
-                "Note that lexicon license is for research purposes only.",
+    description=(
+        "Lexicon + TF-IDF emotion features (V1), hybrid transformer support, and V2 "
+        "interpretable lexical evidence (EmoTFIDFv2). Lexicon: research use only."
+    ),
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/mmsa/emotfidf",
-    packages=setuptools.find_packages(),
+    project_urls={
+        "Source": "https://github.com/mmsa/emotfidf",
+        "Tracker": "https://github.com/mmsa/emotfidf/issues",
+    },
+    # Ship only the library; ``experiments/`` is local benchmark code, not a distribution package.
+    packages=["EmoTFIDF", "EmoTFIDF.evidence"],
     install_requires=[
-        'nltk',
-        'scikit-learn',
-        'pandas',
-        'matplotlib',
-        'seaborn',
-        'torch',
-        'transformers'
+        "numpy>=1.19.0",
+        "nltk>=3.6",
+        "scikit-learn>=1.0.0",
+        "pandas>=1.2.0",
+        "matplotlib>=3.3.0",
+        "seaborn>=0.11.0",
+        "torch>=1.9.0",
+        "transformers>=4.20.0",
     ],
     include_package_data=True,
-    py_modules=["EmoTFIDF"],
-    setup_requires=['nltk'],
-    package_data={'EmoTFIDF': ['emotions_lex.json']},
+    package_data={"EmoTFIDF": ["emotions_lex.json"]},
     classifiers=[
-        "Programming Language :: Python :: 3.6",
+        "Development Status :: 4 - Beta",
+        "Intended Audience :: Science/Research",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
+        "Topic :: Scientific/Engineering :: Artificial Intelligence",
+        "Topic :: Text Processing :: Linguistic",
     ],
-    python_requires='>=3.6',
+    python_requires=">=3.8",
+    keywords="emotion NLP TF-IDF lexicon transformers interpretability",
 )

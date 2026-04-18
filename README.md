@@ -13,6 +13,46 @@ EmoTFIDF is an emotion detection library (Lexicon approach) based in the Nationa
 pip install EmoTFIDF
 ```
 
+## EmoTFIDF V2 (interpretable evidence layer)
+
+The implementation lives in the **`EmoTFIDF.evidence`** package (`from EmoTFIDF.evidence import EmoTFIDFv2`). The class name `EmoTFIDFv2` marks the second-generation API; the module name describes what it does.
+
+V2 is a **parallel API** for research and tooling: it is meant as an interpretable lexical + TF-IDF **evidence** and **feature** module (explanations, richer vectors, prompt exports, and a light verifier for a proposed emotion label). It does **not** try to replace transformer baselines; see `docs/emotfidf_v2_notes.md` for design notes and suggested benchmarks.
+
+**Negation** uses a fixed cue list and a short token window before each lexicon hit; contributions are scaled (and may flip sign) in a transparent, rule-based way. **Intensifiers / downtoners** apply simple multipliers in a short window before the affect token. **The verifier** surfaces lexical alignment only—it should not be read as semantic ground truth.
+
+### Evidence API quick example
+
+```python
+from EmoTFIDF.evidence import EmoTFIDFv2
+
+corpus = [
+    "I am happy today and everything feels great.",
+    "I am not happy today and everything feels wrong.",
+    "I feel sad and disappointed about the news.",
+]
+engine = EmoTFIDFv2()
+engine.fit(corpus)
+
+text = "I am very happy today!"
+analysis = engine.analyze(text)
+print(analysis.dominant_emotions)
+print(analysis.to_dict()["negation_hits"])
+
+print(engine.verify_label(text, "joy"))
+print(engine.to_prompt_features(text))
+```
+
+You can also import the class from the package root: `from EmoTFIDF import EmoTFIDFv2`.
+
+### Compare legacy V1 vs evidence API
+
+From the repository root, run `python experiments/compare_v1_v2.py` to print side-by-side dominant labels, L1 distance on the seven emotion scores, and cosine similarity (scores use different formulas, so metrics are indicative). Pytest coverage: `pytest tests/test_v1_v2_compare.py`.
+
+### Curated regression benchmark (pre–full benchmark)
+
+Run `python experiments/benchmark_v1_v2_regression.py` for a small JSON report on dominant agreement, abstention, negation, explanation token previews, and verifier calibration fields. This is a **regression gate** only—not a paper-scale benchmark. Pytest: `pytest tests/test_benchmark_regression_smoke.py`.
+
 #List of emotions
 
 -fear

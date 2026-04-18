@@ -9,11 +9,10 @@ from typing import List
 import nltk
 from nltk.corpus import stopwords
 
-# Ensure resources exist (idempotent for CI / fresh envs).
-try:
-    nltk.data.find("tokenizers/punkt")
-except LookupError:
-    nltk.download("punkt", quiet=True)
+from ..nltk_resources import ensure_nltk_word_tokenize_deps
+
+# NLTK 3.8+ ``word_tokenize`` uses ``punkt_tab``; CI runners often lack it.
+ensure_nltk_word_tokenize_deps()
 try:
     nltk.data.find("corpora/stopwords")
 except LookupError:

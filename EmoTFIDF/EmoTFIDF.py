@@ -11,9 +11,11 @@ import seaborn as sns
 import torch
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 
-nltk.download('wordnet')
-nltk.download('punkt')
-nltk.download('stopwords')
+from .nltk_resources import ensure_nltk_word_tokenize_deps
+
+ensure_nltk_word_tokenize_deps()
+nltk.download("wordnet", quiet=True)
+nltk.download("stopwords", quiet=True)
 
 # Initialize the tokenizer and model for transformer-based emotion detection
 tokenizer = AutoTokenizer.from_pretrained("j-hartmann/emotion-english-distilroberta-base")

@@ -1,6 +1,14 @@
+dist/
+*.egg-info/
+build/
 __pycache__/
 *.py[cod]
-*.egg-info/
 .pytest_cache/
 experiments/artifacts/
 experiments/artifacts_smoke/
+# Evaluation script outputs (regenerate with run_fusion_ablation / run_verifier_analysis)
+experiments/eval_outputs/*.csv
+experiments/eval_outputs/*.md
+# Written by experiments/evaluate.py
+experiments/results.csv
+experiments/explanations.txt

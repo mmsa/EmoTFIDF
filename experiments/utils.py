@@ -18,6 +18,7 @@ import numpy as np
 REPO_ROOT: Path = Path(__file__).resolve().parents[1]
 EXPERIMENTS_ROOT: Path = Path(__file__).resolve().parent
 ARTIFACTS_DIR: Path = EXPERIMENTS_ROOT / "artifacts"
+EVAL_OUTPUTS_DIR: Path = EXPERIMENTS_ROOT / "eval_outputs"
 RESULTS_CSV: Path = EXPERIMENTS_ROOT / "results.csv"
 EXPLANATIONS_TXT: Path = EXPERIMENTS_ROOT / "explanations.txt"
 

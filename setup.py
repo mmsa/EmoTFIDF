@@ -8,7 +8,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="EmoTFIDF",
-    version="1.5.2",
+    version="2.0.0",
     author="mmsa12",
     author_email="mmsa12@gmail.com",
     description=(

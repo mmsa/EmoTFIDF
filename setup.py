@@ -8,7 +8,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="EmoTFIDF",
-    version="2.0.0",
+    version="2.1.0",
     author="mmsa12",
     author_email="mmsa12@gmail.com",
     description=(
@@ -35,7 +35,7 @@ setuptools.setup(
         "transformers>=4.20.0",
     ],
     include_package_data=True,
-    package_data={"EmoTFIDF": ["emotions_lex.json"]},
+    package_data={"EmoTFIDF": ["emotions_lex.json", "sentence_assets/*.npz", "sentence_assets/*.json"]},
     classifiers=[
         "Development Status :: 4 - Beta",
         "Intended Audience :: Science/Research",

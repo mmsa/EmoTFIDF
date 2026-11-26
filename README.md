@@ -13,6 +13,21 @@ EmoTFIDF is an emotion detection library (Lexicon approach) based in the Nationa
 pip install EmoTFIDF
 ```
 
+## Whole-sentence transformer (2.1.0)
+
+```python
+from EmoTFIDF.sentence import SentenceEmotionTransformer
+
+model = SentenceEmotionTransformer()
+scores = model.score("I want to go have a party like hell")
+print(max(scores, key=scores.get))  # joy
+print(round(scores["joy"], 3))     # 0.793
+```
+
+The wheel includes the vocabulary and trained weights. The model reads up to 47 English tokens and returns seven independent sigmoid scores. It uses only learned transformer parameters. Scores are uncalibrated.
+
+The one-layer encoder was trained from scratch on the official GoEmotions training split, using the project's Ekman mapping plus neutral and preserving multiple labels. The checkpoint selected by validation macro average precision achieved 0.562 macro average precision on 5,427 test comments. It can miss contextual reversals such as "I dread going to the party."
+
 ## EmoTFIDF V2 (interpretable evidence layer)
 
 The implementation lives in the **`EmoTFIDF.evidence`** package (`from EmoTFIDF.evidence import EmoTFIDFv2`). The class name `EmoTFIDFv2` marks the second-generation API; the module name describes what it does.
